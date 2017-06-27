@@ -33,7 +33,8 @@
 namespace Ipc
 {
 
-std::function<void(int32_t, std::string)>* Output::_log = nullptr;
+int32_t Output::_logLevel = 3;
+std::mutex Output::_outputMutex;
 
 Output::Output()
 {
@@ -43,47 +44,83 @@ Output::~Output()
 {
 }
 
-void Output::init(std::function<void(int32_t, std::string)>* logMethod)
+void Output::setLogLevel(int32_t value)
 {
-	_log = logMethod;
+	_logLevel = value;
+}
+
+std::string Output::getTimeString()
+{
+	const char timeFormat[] = "%x %X";
+	std::time_t t;
+	int32_t milliseconds;
+	const auto timePoint = std::chrono::system_clock::now();
+	t = std::chrono::system_clock::to_time_t(timePoint);
+	milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()).count() % 1000;
+	char timeString[50];
+	std::tm localTime;
+	localtime_r(&t, &localTime);
+	strftime(&timeString[0], 50, &timeFormat[0], &localTime);
+	std::ostringstream timeStream;
+	timeStream << timeString << "." << std::setw(3) << std::setfill('0') << milliseconds;
+	return timeStream.str();
 }
 
 void Output::printEx(std::string file, uint32_t line, std::string function, std::string what)
 {
+	if(_logLevel < 2) return;
 	std::string error;
 	if(!what.empty()) error = "Error in file " + file + " line " + std::to_string(line) + " in function " + function + ": " + what;
 	else error = "Unknown error in file " + file + " line " + std::to_string(line) + " in function " + function + ".";
-	if(_log && *_log) (*_log)(2, error);
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << error << std::endl;
+	std::cerr << getTimeString() << " " << error << std::endl;
 }
 
 void Output::printCritical(std::string errorString, bool errorCallback)
 {
-	if(_log && *_log) (*_log)(1, errorString);
+	if(_logLevel < 1) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << errorString << std::endl;
+    std::cerr << getTimeString() << " " << errorString << std::endl;
 }
 
 void Output::printError(std::string errorString)
 {
-	if(_log && *_log) (*_log)(2, errorString);
+	if(_logLevel < 2) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << errorString << std::endl;
+    std::cerr << getTimeString() << " " << errorString << std::endl;
 }
 
 void Output::printWarning(std::string errorString)
 {
-	if(_log && *_log) (*_log)(3, errorString);
+	if(_logLevel < 3) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << errorString << std::endl;
+    std::cerr << getTimeString() << " " << errorString << std::endl;
 }
 
 void Output::printInfo(std::string message)
 {
-	if(_log && *_log) (*_log)(4, message);
+	if(_logLevel < 4) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << message << std::endl;
 }
 
 void Output::printDebug(std::string message, int32_t minDebugLevel)
 {
-	if(_log && *_log) (*_log)(5, message);
+	if(_logLevel < minDebugLevel) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << message << std::endl;
 }
 
 void Output::printMessage(std::string message, int32_t minDebugLevel)
 {
-	if(_log && *_log) (*_log)(minDebugLevel, message);
+	if(_logLevel < minDebugLevel) return;
+	std::lock_guard<std::mutex> outputGuard(_outputMutex);
+	std::cout << getTimeString() << " " << message << std::endl;
+	if(minDebugLevel <= 3) std::cerr << getTimeString() << " " << message << std::endl;
 }
 
 }

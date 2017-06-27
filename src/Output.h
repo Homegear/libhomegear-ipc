@@ -31,10 +31,11 @@
 #ifndef IPCOUTPUT_H_
 #define IPCOUTPUT_H_
 
+#include <iostream>
 #include <string>
 #include <sstream>
-#include <functional>
 #include <iomanip>
+#include <mutex>
 
 namespace Ipc
 {
@@ -51,7 +52,7 @@ public:
 	 */
 	virtual ~Output();
 
-	static void init(std::function<void(int32_t, std::string)>* logMethod);
+	static void setLogLevel(int32_t value);
 
 	/**
 	 * Prints an error message with filename, line number and function name.
@@ -142,7 +143,10 @@ public:
 	 * Calls the error callback function registered with the constructor.
 	 */
 private:
-	static std::function<void(int32_t, std::string)>* _log;
+	static int32_t _logLevel;
+	static std::mutex _outputMutex;
+
+	static std::string getTimeString();
 
 	/**
 	 * The main constructor.
