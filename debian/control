@@ -1,0 +1,14 @@
+Source: libhomegear-ipc
+Maintainer: Sathya Laufer <sathya@laufers.net>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 8)
+Homepage: https://homegear.eu
+
+Package: libhomegear-ipc
+Architecture: any
+Depends: ${misc:Depends}
+Description: IPC library for Homegear
+ Homegear is a program to interface your home automation software 
+ with your smart home devices.

@@ -1,0 +1,471 @@
+/* Copyright 2013-2017 Sathya Laufer
+ *
+ * libhomegear-base is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * libhomegear-base is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with libhomegear-base.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * In addition, as a special exception, the copyright holders give
+ * permission to link the code of portions of this program with the
+ * OpenSSL library under certain conditions as described in each
+ * individual source file, and distribute linked combinations
+ * including the two.
+ * You must obey the GNU Lesser General Public License in all respects
+ * for all of the code used other than OpenSSL.  If you modify
+ * file(s) with this exception, you may extend this exception to your
+ * version of the file(s), but you are not obligated to do so.  If you
+ * do not wish to do so, delete this exception statement from your
+ * version.  If you delete this exception statement from all source
+ * files in the program, then also delete it here.
+*/
+
+#include "Variable.h"
+#include "HelperFunctions.h"
+
+namespace Ipc
+{
+
+Variable::~Variable()
+{
+}
+
+std::shared_ptr<Variable> Variable::createError(int32_t faultCode, std::string faultString)
+{
+	std::shared_ptr<Variable> error = std::make_shared<Variable>(VariableType::tStruct);
+	error->errorStruct = true;
+	error->structValue->insert(StructElement("faultCode", std::make_shared<Variable>(faultCode)));
+	error->structValue->insert(StructElement("faultString", std::make_shared<Variable>(faultString)));
+	return error;
+}
+
+Variable::Variable(Variable const& rhs)
+{
+	errorStruct = rhs.errorStruct;
+	type = rhs.type;
+	stringValue = rhs.stringValue;
+	integerValue = rhs.integerValue;
+	integerValue64 = rhs.integerValue64;
+	floatValue = rhs.floatValue;
+	booleanValue = rhs.booleanValue;
+	binaryValue = rhs.binaryValue;
+	for(Array::const_iterator i = rhs.arrayValue->begin(); i != rhs.arrayValue->end(); ++i)
+	{
+		PVariable lhs = std::make_shared<Variable>();
+		*lhs = *(*i);
+		arrayValue->push_back(lhs);
+	}
+	for(Struct::const_iterator i = rhs.structValue->begin(); i != rhs.structValue->end(); ++i)
+	{
+		PVariable lhs = std::make_shared<Variable>();
+		*lhs = *(i->second);
+		structValue->insert(std::pair<std::string, PVariable>(i->first, lhs));
+	}
+}
+
+Variable& Variable::operator=(const Variable& rhs)
+{
+	if(&rhs == this) return *this;
+	errorStruct = rhs.errorStruct;
+	type = rhs.type;
+	stringValue = rhs.stringValue;
+	integerValue = rhs.integerValue;
+	integerValue64 = rhs.integerValue64;
+	floatValue = rhs.floatValue;
+	booleanValue = rhs.booleanValue;
+	binaryValue = rhs.binaryValue;
+	for(Array::const_iterator i = rhs.arrayValue->begin(); i != rhs.arrayValue->end(); ++i)
+	{
+		PVariable lhs = std::make_shared<Variable>();
+		*lhs = *(*i);
+		arrayValue->push_back(lhs);
+	}
+	for(Struct::const_iterator i = rhs.structValue->begin(); i != rhs.structValue->end(); ++i)
+	{
+		PVariable lhs = std::make_shared<Variable>();
+		*lhs = *(i->second);
+		structValue->insert(std::pair<std::string, PVariable>(i->first, lhs));
+	}
+	return *this;
+}
+
+bool Variable::operator==(const Variable& rhs)
+{
+	if(type != rhs.type) return false;
+	if(type == VariableType::tBoolean) return booleanValue == rhs.booleanValue;
+	if(type == VariableType::tInteger) return integerValue == rhs.integerValue;
+	if(type == VariableType::tInteger64) return integerValue64 == rhs.integerValue64;
+	if(type == VariableType::tString) return stringValue == rhs.stringValue;
+	if(type == VariableType::tFloat) return floatValue == rhs.floatValue;
+	if(type == VariableType::tArray)
+	{
+		if(arrayValue->size() != rhs.arrayValue->size()) return false;
+		for(std::pair<Array::iterator, Array::iterator> i(arrayValue->begin(), rhs.arrayValue->begin()); i.first != arrayValue->end(); ++i.first, ++i.second)
+		{
+			if(*(i.first) != *(i.second)) return false;
+		}
+	}
+	if(type == VariableType::tStruct)
+	{
+		if(structValue->size() != rhs.structValue->size()) return false;
+		for(std::pair<Struct::iterator, Struct::iterator> i(structValue->begin(), rhs.structValue->begin()); i.first != structValue->end(); ++i.first, ++i.second)
+		{
+			if(i.first->first != i.first->first || *(i.second->second) != *(i.second->second)) return false;
+		}
+	}
+	if(type == VariableType::tBase64) return stringValue == rhs.stringValue;
+	if(type == VariableType::tBinary)
+	{
+		if(binaryValue.size() != rhs.binaryValue.size()) return false;
+		if(binaryValue.empty()) return true;
+		uint8_t* i = &binaryValue[0];
+		uint8_t* j = (uint8_t*)&rhs.binaryValue[0];
+		for(; i < &binaryValue[0] + binaryValue.size(); i++, j++)
+		{
+			if(*i != *j) return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool Variable::operator<(const Variable& rhs)
+{
+	if(type == VariableType::tBoolean) return booleanValue < rhs.booleanValue;
+	if(type == VariableType::tInteger) return integerValue < rhs.integerValue;
+	if(type == VariableType::tInteger64) return integerValue64 < rhs.integerValue64;
+	if(type == VariableType::tString) return stringValue < rhs.stringValue;
+	if(type == VariableType::tFloat) return floatValue < rhs.floatValue;
+	if(type == VariableType::tArray)
+	{
+		if(arrayValue->size() < rhs.arrayValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tStruct)
+	{
+		if(structValue->size() < rhs.structValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tBase64) return stringValue < rhs.stringValue;
+	return false;
+}
+
+bool Variable::operator<=(const Variable& rhs)
+{
+	if(type == VariableType::tBoolean) return booleanValue <= rhs.booleanValue;
+	if(type == VariableType::tInteger) return integerValue <= rhs.integerValue;
+	if(type == VariableType::tInteger64) return integerValue64 <= rhs.integerValue64;
+	if(type == VariableType::tString) return stringValue <= rhs.stringValue;
+	if(type == VariableType::tFloat) return floatValue <= rhs.floatValue;
+	if(type == VariableType::tArray)
+	{
+		if(arrayValue->size() <= rhs.arrayValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tStruct)
+	{
+		if(structValue->size() <= rhs.structValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tBase64) return stringValue <= rhs.stringValue;
+	return false;
+}
+
+bool Variable::operator>(const Variable& rhs)
+{
+	if(type == VariableType::tBoolean) return booleanValue > rhs.booleanValue;
+	if(type == VariableType::tInteger) return integerValue > rhs.integerValue;
+	if(type == VariableType::tInteger64) return integerValue64 > rhs.integerValue64;
+	if(type == VariableType::tString) return stringValue > rhs.stringValue;
+	if(type == VariableType::tFloat) return floatValue > rhs.floatValue;
+	if(type == VariableType::tArray)
+	{
+		if(arrayValue->size() > rhs.arrayValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tStruct)
+	{
+		if(structValue->size() > rhs.structValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tBase64) return stringValue > rhs.stringValue;
+	return false;
+}
+
+bool Variable::operator>=(const Variable& rhs)
+{
+	if(type == VariableType::tBoolean) return booleanValue >= rhs.booleanValue;
+	if(type == VariableType::tInteger) return integerValue >= rhs.integerValue;
+	if(type == VariableType::tInteger64) return integerValue64 >= rhs.integerValue64;
+	if(type == VariableType::tString) return stringValue >= rhs.stringValue;
+	if(type == VariableType::tFloat) return floatValue >= rhs.floatValue;
+	if(type == VariableType::tArray)
+	{
+		if(arrayValue->size() >= rhs.arrayValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tStruct)
+	{
+		if(structValue->size() >= rhs.structValue->size()) return true; else return false;
+	}
+	if(type == VariableType::tBase64) return stringValue >= rhs.stringValue;
+	return false;
+}
+
+bool Variable::operator!=(const Variable& rhs)
+{
+	return !(operator==(rhs));
+}
+
+Variable::operator Variable::bool_type() const
+{
+	bool result = false;
+	if(type != VariableType::tBoolean)
+	{
+		switch(type)
+		{
+		case VariableType::tArray:
+			result = !arrayValue->empty();
+			break;
+		case VariableType::tBase64:
+			result = !stringValue.empty() && stringValue != "0";
+			break;
+		case VariableType::tBinary:
+			result = !binaryValue.empty();
+			break;
+		case VariableType::tBoolean:
+			break;
+		case VariableType::tFloat:
+			result = (bool)floatValue;
+			break;
+		case VariableType::tInteger:
+			result = (bool)integerValue;
+			break;
+		case VariableType::tInteger64:
+			result = (bool)integerValue64;
+			break;
+		case VariableType::tString:
+			result = !stringValue.empty() && stringValue != "0";
+			break;
+		case VariableType::tStruct:
+			result = !structValue->empty();
+			break;
+		case VariableType::tVariant:
+			break;
+		case VariableType::tVoid:
+			result = false;
+			break;
+		}
+	}
+	else result = booleanValue;
+	return result ? &Variable::this_type_does_not_support_comparisons : 0;
+}
+
+std::string Variable::print(bool stdout, bool stderr, bool oneLine)
+{
+	std::ostringstream result;
+	if(type == VariableType::tVoid)
+	{
+		result << "(void)" << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tBoolean)
+	{
+		result << "(Boolean) " << booleanValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tInteger)
+	{
+		result << "(Integer) " << integerValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tInteger64)
+	{
+		result << "(Integer64) " << integerValue64 << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tFloat)
+	{
+		result << "(Float) " << floatValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tString)
+	{
+		result << "(String) " << stringValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tBase64)
+	{
+		result << "(Base64) " << stringValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tArray)
+	{
+		std::string indent("");
+		result << printArray(arrayValue, indent, oneLine);
+	}
+	else if(type == VariableType::tStruct)
+	{
+		std::string indent("");
+		result << printStruct(structValue, indent, oneLine);
+	}
+	else if(type == VariableType::tBinary)
+	{
+		result << "(Binary) " << HelperFunctions::getHexString(binaryValue) << (oneLine ? " " : "\n");
+	}
+	else
+	{
+		result << "(unknown)" << (oneLine ? " " : "\n");
+	}
+	std::string resultString = result.str();
+	if(stdout) std::cout << resultString;
+	if(stderr) std::cerr << resultString;
+	return resultString;
+}
+
+std::string Variable::print(PVariable variable, std::string indent, bool oneLine)
+{
+	if(!variable) return "";
+	std::ostringstream result;
+	if(variable->type == VariableType::tVoid)
+	{
+		result << indent << "(void)" << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tInteger)
+	{
+		result << indent << "(Integer) " << variable->integerValue << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tInteger64)
+	{
+		result << indent << "(Integer64) " << variable->integerValue64 << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tFloat)
+	{
+		result << indent << "(Float) " << variable->floatValue << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tBoolean)
+	{
+		result << indent << "(Boolean) " << variable->booleanValue << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tString)
+	{
+		result << indent << "(String) " << variable->stringValue << (oneLine ? " " : "\n");
+	}
+	else if(type == VariableType::tBase64)
+	{
+		result << indent << "(Base64) " << variable->stringValue << (oneLine ? " " : "\n");
+	}
+	else if(variable->type == VariableType::tArray)
+	{
+		return printArray(variable->arrayValue, indent, oneLine);
+	}
+	else if(variable->type == VariableType::tStruct)
+	{
+		return printStruct(variable->structValue, indent, oneLine);
+	}
+	else if(variable->type == VariableType::tBinary)
+	{
+		result << indent << "(Binary) " << HelperFunctions::getHexString(variable->binaryValue) << (oneLine ? " " : "\n");
+	}
+	else
+	{
+		result << indent << "(Unknown)" << (oneLine ? " " : "\n");
+	}
+	return result.str();
+}
+
+std::string Variable::printArray(PArray array, std::string indent, bool oneLine)
+{
+	std::ostringstream result;
+	result << indent << "(Array length=" << array->size() << ")" << (oneLine ? " " : "\n" + indent) << "{" << (oneLine ? " " : "\n");
+	std::string currentIndent = indent;
+	if(!oneLine)
+	{
+		currentIndent.push_back(' ');
+		currentIndent.push_back(' ');
+	}
+	for(std::vector<std::shared_ptr<Variable>>::iterator i = array->begin(); i != array->end(); ++i)
+	{
+		result << print(*i, currentIndent, oneLine);
+	}
+	result << (oneLine ? " } " : indent + "}\n");
+	return result.str();
+}
+
+std::string Variable::printStruct(PStruct tStruct, std::string indent, bool oneLine)
+{
+	std::ostringstream result;
+	result << indent << "(Struct length=" << tStruct->size() << ")" << (oneLine ? " " : "\n" + indent) << "{" << (oneLine ? " " : "\n");
+	std::string currentIndent = indent;
+	if(!oneLine)
+	{
+		currentIndent.push_back(' ');
+		currentIndent.push_back(' ');
+	}
+	for(std::map<std::string, std::shared_ptr<Variable>>::iterator i = tStruct->begin(); i != tStruct->end(); ++i)
+	{
+		result << currentIndent << "[" << i->first << "]" << (oneLine ? " " : "\n" + currentIndent) << "{" << (oneLine ? " " : "\n");
+		result << print(i->second, currentIndent + "  ", oneLine);
+		result << (oneLine ? " } " : currentIndent + "}\n");
+	}
+	result << (oneLine ? " } " : indent + "}\n");
+	return result.str();
+}
+
+std::string Variable::toString()
+{
+	switch(type)
+	{
+	case VariableType::tArray:
+		return "array";
+	case VariableType::tBase64:
+		return stringValue;
+	case VariableType::tBoolean:
+		if(booleanValue) return "true"; else return "false";
+	case VariableType::tFloat:
+		return std::to_string(floatValue);
+	case VariableType::tInteger:
+		return std::to_string(integerValue);
+	case VariableType::tInteger64:
+		return std::to_string(integerValue64);
+	case VariableType::tString:
+		return stringValue;
+	case VariableType::tStruct:
+		return "struct";
+	case VariableType::tBinary:
+		return HelperFunctions::getHexString(binaryValue);
+	case VariableType::tVoid:
+		return "";
+	case VariableType::tVariant:
+		return "valuetype";
+	}
+	return "";
+}
+
+std::string Variable::getTypeString(VariableType type)
+{
+	switch(type)
+	{
+	case VariableType::tArray:
+		return "array";
+	case VariableType::tBase64:
+		return "base64";
+	case VariableType::tBoolean:
+		return "boolean";
+	//case VariableType::rpcDate:
+	//	return "dateTime.iso8601";
+	case VariableType::tFloat:
+		return "double";
+	case VariableType::tInteger:
+		return "i4";
+	case VariableType::tInteger64:
+		return "i8";
+	case VariableType::tString:
+		return "string";
+	case VariableType::tStruct:
+		return "struct";
+	case VariableType::tBinary:
+		return "binary";
+	case VariableType::tVoid:
+		return "void";
+	case VariableType::tVariant:
+		return "valuetype";
+	}
+	return "string";
+}
+
+}
