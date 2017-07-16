@@ -558,14 +558,12 @@ void RpcEncoder::encodeBinary(std::vector<uint8_t>& packet, std::shared_ptr<Vari
 
 void RpcEncoder::encodeVoid(std::vector<char>& packet)
 {
-	std::shared_ptr<Variable> string(new Variable(VariableType::tString));
-	encodeString(packet, string);
+	encodeType(packet, VariableType::tVoid);
 }
 
 void RpcEncoder::encodeVoid(std::vector<uint8_t>& packet)
 {
-	std::shared_ptr<Variable> string(new Variable(VariableType::tString));
-	encodeString(packet, string);
+	encodeType(packet, VariableType::tVoid);
 }
 
 }

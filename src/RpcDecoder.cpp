@@ -165,7 +165,11 @@ std::shared_ptr<Variable> RpcDecoder::decodeParameter(std::vector<char>& packet,
 {
 	VariableType type = decodeType(packet, position);
 	std::shared_ptr<Variable> variable = std::make_shared<Variable>(type);
-	if(type == VariableType::tString || type == VariableType::tBase64)
+	if(variable->type == VariableType::tVoid)
+	{
+		//Nothing
+	}
+	else if(type == VariableType::tString || type == VariableType::tBase64)
 	{
 		variable->stringValue = _decoder->decodeString(packet, position);
 	}
@@ -210,7 +214,11 @@ std::shared_ptr<Variable> RpcDecoder::decodeParameter(std::vector<uint8_t>& pack
 {
 	VariableType type = decodeType(packet, position);
 	std::shared_ptr<Variable> variable = std::make_shared<Variable>(type);
-	if(type == VariableType::tString || type == VariableType::tBase64)
+	if(variable->type == VariableType::tVoid)
+	{
+		//Nothing
+	}
+	else if(type == VariableType::tString || type == VariableType::tBase64)
 	{
 		variable->stringValue = _decoder->decodeString(packet, position);
 	}
@@ -254,7 +262,11 @@ std::shared_ptr<Variable> RpcDecoder::decodeParameter(std::vector<uint8_t>& pack
 void RpcDecoder::decodeParameter(PVariable& variable, uint32_t& position)
 {
 	variable->type = decodeType(variable->binaryValue, position);
-	if(variable->type == VariableType::tString || variable->type == VariableType::tBase64)
+	if(variable->type == VariableType::tVoid)
+	{
+		//Nothing
+	}
+	else if(variable->type == VariableType::tString || variable->type == VariableType::tBase64)
 	{
 		variable->stringValue = _decoder->decodeString(variable->binaryValue, position);
 	}
