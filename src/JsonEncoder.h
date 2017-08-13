@@ -28,8 +28,8 @@
  * files in the program, then also delete it here.
 */
 
-#ifndef NODEJSONENCODER_H_
-#define NODEJSONENCODER_H_
+#ifndef IPCJSONENCODER_H_
+#define IPCJSONENCODER_H_
 
 #include "Variable.h"
 #include <cmath>
