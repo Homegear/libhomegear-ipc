@@ -307,25 +307,27 @@ void IIpcClient::processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& 
 			int64_t threadId = response->arrayValue->at(0)->integerValue64;
 			int32_t packetId = response->arrayValue->at(1)->integerValue;
 
-			{
-				std::lock_guard<std::mutex> responseGuard(_rpcResponsesMutex);
-				auto responseIterator = _rpcResponses[threadId].find(packetId);
-				if(responseIterator != _rpcResponses[threadId].end())
-				{
-					PIpcResponse element = responseIterator->second;
-					if(element)
-					{
-						element->response = response;
-						element->packetId = packetId;
-						element->finished = true;
-					}
-				}
-			}
 			std::lock_guard<std::mutex> requestInfoGuard(_requestInfoMutex);
 			std::map<int64_t, PRequestInfo>::iterator requestIterator = _requestInfo.find(threadId);
 			if (requestIterator != _requestInfo.end())
 			{
 				std::unique_lock<std::mutex> waitLock(requestIterator->second->waitMutex);
+
+				{
+					std::lock_guard<std::mutex> responseGuard(_rpcResponsesMutex);
+					auto responseIterator = _rpcResponses[threadId].find(packetId);
+					if(responseIterator != _rpcResponses[threadId].end())
+					{
+						PIpcResponse element = responseIterator->second;
+						if(element)
+						{
+							element->response = response;
+							element->packetId = packetId;
+							element->finished = true;
+						}
+					}
+				}
+
 				waitLock.unlock();
 				requestIterator->second->conditionVariable.notify_all();
 			}
