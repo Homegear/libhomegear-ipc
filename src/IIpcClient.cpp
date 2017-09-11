@@ -33,7 +33,7 @@
 namespace Ipc
 {
 
-IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 1000)
+IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000)
 {
 	_socketPath = socketPath;
 
@@ -322,8 +322,13 @@ void IIpcClient::processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& 
 				}
 			}
 			std::lock_guard<std::mutex> requestInfoGuard(_requestInfoMutex);
-			std::map<int64_t, RequestInfo>::iterator requestIterator = _requestInfo.find(threadId);
-			if (requestIterator != _requestInfo.end()) requestIterator->second.conditionVariable.notify_all();
+			std::map<int64_t, PRequestInfo>::iterator requestIterator = _requestInfo.find(threadId);
+			if (requestIterator != _requestInfo.end())
+			{
+				std::unique_lock<std::mutex> waitLock(requestIterator->second->waitMutex);
+				waitLock.unlock();
+				requestIterator->second->conditionVariable.notify_all();
+			}
 		}
 	}
 	catch(const std::exception& ex)
@@ -371,7 +376,7 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
 	{
 		int64_t threadId = pthread_self();
 		std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
-		RequestInfo& requestInfo = _requestInfo[threadId];
+		PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
 		requestInfoGuard.unlock();
 
 		int32_t packetId;
@@ -404,8 +409,8 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
 			return result;
 		}
 
-		std::unique_lock<std::mutex> waitLock(requestInfo.waitMutex);
-		while (!requestInfo.conditionVariable.wait_for(waitLock, std::chrono::milliseconds(10000), [&]
+		std::unique_lock<std::mutex> waitLock(requestInfo->waitMutex);
+		while (!requestInfo->conditionVariable.wait_for(waitLock, std::chrono::milliseconds(10000), [&]
 		{
 			return response->finished || _closed || _stopped || _disposing;
 		}));
@@ -421,6 +426,11 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
 			std::lock_guard<std::mutex> responseGuard(_rpcResponsesMutex);
 			_rpcResponses[threadId].erase(packetId);
 			if (_rpcResponses[threadId].empty()) _rpcResponses.erase(threadId);
+		}
+
+		{
+			std::lock_guard<std::mutex> requestInfoGuard(_requestInfoMutex);
+			_requestInfo.erase(threadId);
 		}
 
 		return result;
