@@ -99,7 +99,7 @@ int32_t BinaryRpc::process(char* buffer, int32_t bufferLength)
 	else
 	{
 		memcpyBigEndian((char*)&_dataSize, _data.data() + 4, 4);
-		if(_dataSize > 10485760) throw BinaryRpcException("Data is data larger than 10 MiB.");
+		if(_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
 	}
 	if(_dataSize == 0 && _headerSize == 0)
 	{
@@ -120,7 +120,7 @@ int32_t BinaryRpc::process(char* buffer, int32_t bufferLength)
 		bufferLength -= sizeToInsert;
 		memcpyBigEndian((char*)&_dataSize, _data.data() + 8 + _headerSize, 4);
 		_dataSize += _headerSize + 4;
-		if(_dataSize > 10485760) throw BinaryRpcException("Data is data larger than 10 MiB.");
+		if(_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
 	}
 	_data.reserve(8 + _dataSize);
 	if(_data.size() + bufferLength < _dataSize + 8)
