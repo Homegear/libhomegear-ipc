@@ -52,7 +52,7 @@ public:
 	virtual ~IQueue();
 	void startQueue(int32_t index, bool waitWhenFull, uint32_t processingThreadCount);
 	void stopQueue(int32_t index);
-	bool enqueue(int32_t index, std::shared_ptr<IQueueEntry>& entry);
+	bool enqueue(int32_t index, std::shared_ptr<IQueueEntry>& entry, bool waitWhenFull = false);
 	virtual void processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& entry) = 0;
 	bool queueEmpty(int32_t index);
 private:
@@ -61,7 +61,6 @@ private:
 	std::vector<int32_t> _bufferTail;
 	std::vector<int32_t> _bufferCount;
 	std::vector<bool> _waitWhenFull;
-	std::unique_ptr<std::mutex[]> _bufferMutex = nullptr;
 	std::vector<std::vector<std::shared_ptr<IQueueEntry>>> _buffer;
 	std::unique_ptr<std::mutex[]> _queueMutex = nullptr;
 	std::vector<std::vector<std::shared_ptr<std::thread>>> _processingThread;
