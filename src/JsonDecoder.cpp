@@ -718,23 +718,19 @@ void JsonDecoder::decodeNumber(const std::string& json, uint32_t& pos, PVariable
 		else if(exponent > 308) exponent = 308;
 		value->floatValue = (exponent >= 0) ? value->floatValue * Math::Pow10(exponent) : value->floatValue / Math::Pow10(-exponent);
 		if(minus) value->floatValue *= -1;
-		value->integerValue = std::lround(value->floatValue);
 		value->integerValue64 = std::llround(value->floatValue);
+		value->integerValue = std::lround(value->floatValue);
 	}
 	else
 	{
 		if(value->type == VariableType::tInteger && (number > 2147483647 || number < -2147483648))
 		{
 			value->type = VariableType::tInteger64;
-			value->integerValue64 = minus ? -number : number;
-			value->floatValue = value->integerValue64;
 		}
-		else
-		{
-			value->integerValue = minus ? -number : number;
-			value->integerValue64 = value->integerValue;
-			value->floatValue = value->integerValue;
-		}
+
+		value->integerValue64 = minus ? -number : number;
+		value->integerValue = value->integerValue64;
+		value->floatValue = value->integerValue64;
 	}
 }
 
@@ -847,12 +843,19 @@ void JsonDecoder::decodeNumber(const std::vector<char>& json, uint32_t& pos, PVa
 		else if(exponent > 308) exponent = 308;
 		value->floatValue = (exponent >= 0) ? value->floatValue * Math::Pow10(exponent) : value->floatValue / Math::Pow10(-exponent);
 		if(minus) value->floatValue *= -1;
+		value->integerValue64 = std::llround(value->floatValue);
 		value->integerValue = std::lround(value->floatValue);
 	}
 	else
 	{
-		value->integerValue = minus ? -number : number;
-		value->floatValue = value->integerValue;
+		if(value->type == VariableType::tInteger && (number > 2147483647 || number < -2147483648))
+		{
+			value->type = VariableType::tInteger64;
+		}
+
+		value->integerValue64 = minus ? -number : number;
+		value->integerValue = value->integerValue64;
+		value->floatValue = value->integerValue64;
 	}
 }
 
