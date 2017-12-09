@@ -46,6 +46,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 namespace Ipc
 {
