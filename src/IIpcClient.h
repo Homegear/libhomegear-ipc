@@ -58,6 +58,7 @@ public:
 	virtual ~IIpcClient();
 	virtual void dispose();
 
+    bool connected() { return !_closed; }
 	PVariable invoke(std::string methodName, PArray& parameters);
 	virtual void start();
 	virtual void stop();
