@@ -110,6 +110,7 @@ protected:
 	PVariable send(std::vector<char>& data);
 
 	virtual void onConnect() = 0;
+    virtual void onDisconnect() {};
 
 	// {{{ RPC methods
 		virtual Ipc::PVariable broadcastEvent(Ipc::PArray& parameters) { return Ipc::PVariable(new Ipc::Variable()); }

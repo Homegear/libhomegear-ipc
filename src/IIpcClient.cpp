@@ -216,6 +216,8 @@ void IIpcClient::mainThread()
 				if(errno == EINTR) continue;
 				Ipc::Output::printMessage("Connection to IPC server closed (1).");
 				_closed = true;
+                if (_maintenanceThread.joinable()) _maintenanceThread.join();
+                _maintenanceThread = std::thread(&IIpcClient::onDisconnect, this);
 				std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 				continue;
 			}
@@ -225,6 +227,8 @@ void IIpcClient::mainThread()
 			{
 				Ipc::Output::printMessage("Connection to IPC server closed (2).");
 				_closed = true;
+                if (_maintenanceThread.joinable()) _maintenanceThread.join();
+                _maintenanceThread = std::thread(&IIpcClient::onDisconnect, this);
 				std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 				continue;
 			}
