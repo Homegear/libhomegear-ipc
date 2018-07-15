@@ -28,8 +28,8 @@
  * files in the program, then also delete it here.
 */
 
-#ifndef HOMEGEARNODEMATH_H_
-#define HOMEGEARNODEMATH_H_
+#ifndef HOMEGEARIPCMATH_H_
+#define HOMEGEARIPCMATH_H_
 
 #include <string>
 #include <map>

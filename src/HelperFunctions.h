@@ -28,8 +28,8 @@
  * files in the program, then also delete it here.
 */
 
-#ifndef NODEHELPERFUNCTIONS_H_
-#define NODEHELPERFUNCTIONS_H_
+#ifndef IPCHELPERFUNCTIONS_H_
+#define IPCHELPERFUNCTIONS_H_
 
 #include <vector>
 #include <string>
