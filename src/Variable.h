@@ -28,8 +28,8 @@
  * files in the program, then also delete it here.
 */
 
-#ifndef NODEVARIABLE_H_
-#define NODEVARIABLE_H_
+#ifndef IPCVARIABLE_H_
+#define IPCVARIABLE_H_
 
 #include <vector>
 #include <string>
