@@ -144,7 +144,7 @@ void IIpcClient::connect()
 		if (_maintenanceThread.joinable()) _maintenanceThread.join();
 		_maintenanceThread = std::thread(&IIpcClient::onConnect, this);
 
-		Ipc::Output::printMessage("Connected.");
+		Ipc::Output::printDebug("Connected.");
 	}
 	catch(const std::exception& ex)
     {
