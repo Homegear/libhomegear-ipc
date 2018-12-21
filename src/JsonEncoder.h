@@ -35,6 +35,7 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <codecvt>
 
 namespace Ipc
 {

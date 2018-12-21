@@ -293,82 +293,110 @@ void JsonEncoder::encodeFloat(const PVariable& variable, std::vector<char>& s)
 	s.insert(s.end(), value.begin(), value.end());
 }
 
-void JsonEncoder::encodeString(const PVariable& variable, std::ostringstream& s)
+void JsonEncoder::encodeString(const std::shared_ptr<Variable>& variable, std::ostringstream& s)
 {
+	std::u16string utf16 = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(variable->stringValue.data());
+
+	//The RFC says: "All Unicode characters may be placed within the quotation marks except for the characters that must
+	//be escaped: quotation mark, reverse solidus, and the control characters (U+0000 through U+001F)."
+
 	//Source: https://github.com/miloyip/rapidjson/blob/master/include/rapidjson/writer.h
 	static const char hexDigits[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	static const char escape[256] =
-	{
-		//0 1 2 3 4 5 6 7 8 9 A B C D E F
-		'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'b', 't', 'n', 'u', 'f', 'r', 'u', 'u', // 00-0F
-		'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 10-1F
-		0, 0, '"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 20-2F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30-4F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0, // 50-5F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60-7F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80-9F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // A0-BF
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // C0-DF
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  // E0-FF
-	};
+			{
+					//0 1 2 3 4 5 6 7 8 9 A B C D E F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'b', 't', 'n', 'u', 'f', 'r', 'u', 'u', // 00-0F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 10-1F
+					0, 0, '"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 20-2F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30-4F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0, // 50-5F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60-7F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 80-9F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // A0-BF
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // C0-DF
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u'  // E0-FF
+			};
 	s << "\"";
-	for(std::string::iterator i = variable->stringValue.begin(); i != variable->stringValue.end(); ++i)
+	for(std::u16string::iterator i = utf16.begin(); i != utf16.end(); ++i)
 	{
-		if(escape[(uint8_t)*i])
+		if((uint16_t)*i < 256 && escape[(uint8_t)*i])
 		{
-			s << '\\' << escape[(uint8_t)*i];
 			if (escape[(uint8_t)*i] == 'u')
 			{
+				s << '\\' << escape[(uint8_t)*i];
 				s << '0' << '0' << hexDigits[((uint8_t)*i) >> 4] << hexDigits[((uint8_t)*i) & 0xF];
 			}
 		}
-		else s << *i;
+		else
+		{
+			if((uint16_t)*i < 256) s << (char)(uint8_t)*i;
+			else
+			{
+				s << '\\' << 'u' << hexDigits[(uint8_t)(*i >> 12)] << hexDigits[(uint8_t)((*i >> 8) & 0x0F)] << hexDigits[(uint8_t)((*i >> 4) & 0x0F)] << hexDigits[(uint8_t) (*i & 0x0F)];
+			}
+		}
 	}
 	s << "\"";
 }
 
-void JsonEncoder::encodeString(const PVariable& variable, std::vector<char>& s)
+void JsonEncoder::encodeString(const std::shared_ptr<Variable>& variable, std::vector<char>& s)
 {
-	if(s.size() + variable->stringValue.size() + 128 > s.capacity())
+	std::u16string utf16 = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(variable->stringValue.data());
+	if(s.size() + utf16.size() + 128 > s.capacity())
 
 	{
-		int32_t factor = variable->stringValue.size() / 1024;
+		int32_t factor = utf16.size() / 1024;
 		uint32_t neededSize = s.size() + (factor * 1024) + 1024;
 		if(neededSize > s.capacity()) s.reserve(neededSize);
 	}
 
+	//The RFC says: "All Unicode characters may be placed within the quotation marks except for the characters that must
+	//be escaped: quotation mark, reverse solidus, and the control characters (U+0000 through U+001F)."
+
 	//Source: https://github.com/miloyip/rapidjson/blob/master/include/rapidjson/writer.h
 	static const char hexDigits[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	static const char escape[256] =
-	{
-		//0 1 2 3 4 5 6 7 8 9 A B C D E F
-		'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'b', 't', 'n', 'u', 'f', 'r', 'u', 'u', // 00-0F
-		'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 10-1F
-		0, 0, '"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 20-2F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30-4F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0, // 50-5F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60-7F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80-9F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // A0-BF
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // C0-DF
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  // E0-FF
-	};
+			{
+					//0 1 2 3 4 5 6 7 8 9 A B C D E F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'b', 't', 'n', 'u', 'f', 'r', 'u', 'u', // 00-0F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 10-1F
+					0, 0, '"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 20-2F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30-4F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0, // 50-5F
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60-7F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // 80-9F
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // A0-BF
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', // C0-DF
+					'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u'  // E0-FF
+			};
 	s.push_back('"');
-	for(const uint8_t& c : variable->stringValue)
+	for(const char16_t c : utf16)
 	{
-		if(escape[c])
+		if((uint16_t)c < 256 && escape[(uint8_t)c])
 		{
 			s.push_back('\\');
-			s.push_back(escape[c]);
-			if (escape[c] == 'u')
+			s.push_back(escape[(uint8_t)c]);
+			if (escape[(uint8_t)c] == 'u')
 			{
 				s.push_back('0');
 				s.push_back('0');
-				s.push_back(hexDigits[c >> 4]);
-				s.push_back(hexDigits[c & 0xF]);
+				s.push_back(hexDigits[(uint8_t)c >> 4]);
+				s.push_back(hexDigits[(uint8_t)c & 0xF]);
 			}
 		}
-		else s.push_back(c);
+		else
+		{
+			if((uint16_t)c < 256) s.push_back((char)(uint8_t)c);
+			else
+			{
+				s.push_back('\\');
+				s.push_back('u');
+				s.push_back(hexDigits[(uint8_t)(c >> 12)]);
+				s.push_back(hexDigits[(uint8_t)((c >> 8) & 0x0F)]);
+				s.push_back(hexDigits[(uint8_t)((c >> 4) & 0x0F)]);
+				s.push_back(hexDigits[(uint8_t) (c & 0x0F)]);
+			}
+		}
 	}
 	s.push_back('"');
 }
