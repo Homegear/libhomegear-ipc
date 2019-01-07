@@ -48,6 +48,8 @@ public:
 
 	std::string getString(const PVariable variable);
 	std::vector<char> getVector(const PVariable variable);
+
+	std::string encodeString(const std::string& s);
 private:
 	int32_t _requestId = 1;
 
