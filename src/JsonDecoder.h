@@ -33,8 +33,9 @@
 
 #include "Variable.h"
 #include "Math.h"
-#include <cmath>
 #include "IpcException.h"
+#include <cmath>
+#include <codecvt>
 
 namespace Ipc
 {

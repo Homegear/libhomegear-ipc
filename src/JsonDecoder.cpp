@@ -392,6 +392,8 @@ void JsonDecoder::decodeString(const std::vector<char>& json, uint32_t& pos, PVa
 void JsonDecoder::decodeString(const std::string& json, uint32_t& pos, std::string& s)
 {
 	s.clear();
+	std::u16string utf16;
+	utf16.reserve(json.size());
 	if(!posValid(json, pos)) throw JsonDecoderException("No closing '\"' found.");
 	if(json[pos] == '"')
 	{
@@ -408,42 +410,45 @@ void JsonDecoder::decodeString(const std::string& json, uint32_t& pos, std::stri
 			c = json[pos];
 			switch(c)
 			{
-			case 'b':
-				s.push_back('\b');
-				break;
-			case 'f':
-				s.push_back('\f');
-				break;
-			case 'n':
-				s.push_back('\n');
-				break;
-			case 'r':
-				s.push_back('\r');
-				break;
-			case 't':
-				s.push_back('\t');
-				break;
-			case 'u':
+				case 'b':
+					utf16.push_back('\b');
+					break;
+				case 'f':
+					utf16.push_back('\f');
+					break;
+				case 'n':
+					utf16.push_back('\n');
+					break;
+				case 'r':
+					utf16.push_back('\r');
+					break;
+				case 't':
+					utf16.push_back('\t');
+					break;
+				case 'u':
 				{
 					pos += 4;
 					if(!posValid(json, pos)) throw JsonDecoderException("No closing '\"' found.");
 					std::string hex1(json.data() + (pos - 3), 2);
 					std::string hex2(json.data() + (pos - 1), 2);
-					s.push_back((char)(uint8_t)Math::getNumber(hex1, true));
-					s.push_back((char)(uint8_t)Math::getNumber(hex2, true));
+					char16_t c16 = ((char16_t)(uint16_t)(Math::getNumber(hex1, true) << 8)) | ((char16_t)(uint16_t)Math::getNumber(hex2, true));
+					utf16.push_back(c16);
 				}
-				break;
-			default:
-				s.push_back(json[pos]);
+					break;
+				default:
+					utf16.push_back((char16_t)(uint8_t)json[pos]);
 			}
 		}
 		else if(c == '"')
 		{
 			pos++;
+
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t > converter;
+			s = converter.to_bytes(utf16);
+
 			return;
 		}
-		else if((unsigned)c < 0x20) throw JsonDecoderException("Invalid character in string.");
-		else s.push_back(json[pos]);
+		else utf16.push_back((char16_t)(uint8_t)json[pos]);
 		pos++;
 	}
 	throw JsonDecoderException("No closing '\"' found.");
@@ -452,6 +457,8 @@ void JsonDecoder::decodeString(const std::string& json, uint32_t& pos, std::stri
 void JsonDecoder::decodeString(const std::vector<char>& json, uint32_t& pos, std::string& s)
 {
 	s.clear();
+	std::u16string utf16;
+	utf16.reserve(json.size());
 	if(!posValid(json, pos)) throw JsonDecoderException("No closing '\"' found.");
 	if(json[pos] == '"')
 	{
@@ -468,42 +475,45 @@ void JsonDecoder::decodeString(const std::vector<char>& json, uint32_t& pos, std
 			c = json[pos];
 			switch(c)
 			{
-			case 'b':
-				s.push_back('\b');
-				break;
-			case 'f':
-				s.push_back('\f');
-				break;
-			case 'n':
-				s.push_back('\n');
-				break;
-			case 'r':
-				s.push_back('\r');
-				break;
-			case 't':
-				s.push_back('\t');
-				break;
-			case 'u':
+				case 'b':
+					utf16.push_back('\b');
+					break;
+				case 'f':
+					utf16.push_back('\f');
+					break;
+				case 'n':
+					utf16.push_back('\n');
+					break;
+				case 'r':
+					utf16.push_back('\r');
+					break;
+				case 't':
+					utf16.push_back('\t');
+					break;
+				case 'u':
 				{
 					pos += 4;
 					if(!posValid(json, pos)) throw JsonDecoderException("No closing '\"' found.");
 					std::string hex1(json.data() + (pos - 3), 2);
 					std::string hex2(json.data() + (pos - 1), 2);
-					s.push_back((char)(uint8_t)Math::getNumber(hex1, true));
-					s.push_back((char)(uint8_t)Math::getNumber(hex2, true));
+					char16_t c16 = ((char16_t)(uint16_t)(Math::getNumber(hex1, true) << 8)) | ((char16_t)(uint16_t)Math::getNumber(hex2, true));
+					utf16.push_back(c16);
 				}
-				break;
-			default:
-				s.push_back(json[pos]);
+					break;
+				default:
+					utf16.push_back((char16_t)(uint8_t)json[pos]);
 			}
 		}
 		else if(c == '"')
 		{
 			pos++;
+
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t > converter;
+			s = converter.to_bytes(utf16);
+
 			return;
 		}
-		else if((unsigned)c < 0x20) throw JsonDecoderException("Invalid character in string.");
-		else s.push_back(json[pos]);
+		else utf16.push_back((char16_t)(uint8_t)json[pos]);
 		pos++;
 	}
 	throw JsonDecoderException("No closing '\"' found.");
