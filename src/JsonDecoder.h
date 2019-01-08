@@ -35,7 +35,9 @@
 #include "Math.h"
 #include "IpcException.h"
 #include <cmath>
+#if __GNUC__ > 4
 #include <codecvt>
+#endif
 
 namespace Ipc
 {
