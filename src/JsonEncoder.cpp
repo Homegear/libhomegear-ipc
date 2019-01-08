@@ -294,7 +294,7 @@ void JsonEncoder::encodeFloat(const PVariable& variable, std::vector<char>& s)
 	s.insert(s.end(), value.begin(), value.end());
 }
 
-#if __GNUC__ > 3
+#if __GNUC__ > 4
 
 std::string JsonEncoder::encodeString(const std::string& s)
 {

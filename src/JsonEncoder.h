@@ -35,7 +35,9 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#if __GNUC__ > 4
 #include <codecvt>
+#endif
 
 namespace Ipc
 {

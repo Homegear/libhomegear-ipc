@@ -389,7 +389,7 @@ void JsonDecoder::decodeString(const std::vector<char>& json, uint32_t& pos, PVa
 	decodeString(json, pos, value->stringValue);
 }
 
-#if __GNUC__ > 3
+#if __GNUC__ > 4
 
 void JsonDecoder::decodeString(const std::string& json, uint32_t& pos, std::string& s)
 {
