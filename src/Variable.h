@@ -37,6 +37,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <cmath>
 
 namespace Ipc
 {
@@ -90,23 +91,25 @@ public:
 	PStruct structValue;
 	std::vector<uint8_t> binaryValue;
 
-	Variable() { type = VariableType::tVoid; arrayValue = PArray(new Array()); structValue = PStruct(new Struct()); }
+	Variable() { type = VariableType::tVoid; arrayValue = std::make_shared<Array>(); structValue = std::make_shared<Struct>(); }
 	Variable(Variable const& rhs);
-	Variable(VariableType variableType) : Variable() { type = variableType; if(type == VariableType::tVariant) type = VariableType::tVoid; }
-	Variable(uint8_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; }
-	Variable(int32_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; }
-	Variable(uint32_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; }
-	Variable(int64_t integer) : Variable() { type = VariableType::tInteger64; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; }
-	Variable(uint64_t integer) : Variable() { type = VariableType::tInteger64; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; }
-	Variable(std::string string) : Variable() { type = VariableType::tString; stringValue = string; }
-	Variable(const char* string) : Variable() { type = VariableType::tString; stringValue = std::string(string); }
-	Variable(bool boolean) : Variable() { type = VariableType::tBoolean; booleanValue = boolean; }
-	Variable(double floatVal) : Variable() { type = VariableType::tFloat; floatValue = floatVal; }
-	Variable(PArray arrayVal) : Variable() { type = VariableType::tArray; arrayValue = arrayVal; }
-	Variable(std::vector<std::string>& arrayVal) : Variable() { type = VariableType::tArray; arrayValue->reserve(arrayVal.size()); for(std::vector<std::string>::iterator i = arrayVal.begin(); i != arrayVal.end(); ++i) arrayValue->push_back(PVariable(new Variable(*i))); }
-	Variable(PStruct structVal) : Variable() { type = VariableType::tStruct; structValue = structVal; }
-	Variable(std::vector<uint8_t>& binaryVal) : Variable() { type = VariableType::tBinary; binaryValue = binaryVal; }
-	Variable(std::vector<char>& binaryVal) : Variable() { type = VariableType::tBinary; binaryValue.clear(); binaryValue.insert(binaryValue.end(), binaryVal.begin(), binaryVal.end()); }
+	explicit Variable(VariableType variableType) : Variable() { type = variableType; if(type == VariableType::tVariant) type = VariableType::tVoid; }
+	explicit Variable(uint8_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; floatValue = (double)integer; }
+	explicit Variable(int32_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; floatValue = (double)integer; }
+	explicit Variable(uint32_t integer) : Variable() { type = VariableType::tInteger; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; floatValue = (double)integer; }
+	explicit Variable(int64_t integer) : Variable() { type = VariableType::tInteger64; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; floatValue = (double)integer; }
+	explicit Variable(uint64_t integer) : Variable() { type = VariableType::tInteger64; integerValue = (int32_t)integer; integerValue64 = (int64_t)integer; floatValue = (double)integer; }
+	explicit Variable(const std::string& string) : Variable() { type = VariableType::tString; stringValue = string; }
+	explicit Variable(const char* string) : Variable() { type = VariableType::tString; stringValue = std::string(string); }
+	explicit Variable(bool boolean) : Variable() { type = VariableType::tBoolean; booleanValue = boolean; }
+	explicit Variable(double floatVal) : Variable() { type = VariableType::tFloat; floatValue = floatVal; integerValue = (int32_t)std::lround(floatVal); integerValue64 = std::llround(floatVal); }
+	explicit Variable(const PArray& arrayVal) : Variable() { type = VariableType::tArray; arrayValue = arrayVal; }
+	explicit Variable(const std::vector<std::string>& arrayVal) : Variable() { type = VariableType::tArray; arrayValue->reserve(arrayVal.size()); for(auto& element : arrayVal) arrayValue->push_back(std::make_shared<Variable>(element)); }
+	explicit Variable(const PStruct& structVal) : Variable() { type = VariableType::tStruct; structValue = structVal; }
+	explicit Variable(const std::vector<uint8_t>& binaryVal) : Variable() { type = VariableType::tBinary; binaryValue = binaryVal; }
+	explicit Variable(const uint8_t* binaryVal, size_t binaryValSize) : Variable() { type = VariableType::tBinary; binaryValue = std::vector<uint8_t>(binaryVal, binaryVal + binaryValSize); }
+	explicit Variable(const std::vector<char>& binaryVal) : Variable() { type = VariableType::tBinary; binaryValue.clear(); binaryValue.insert(binaryValue.end(), binaryVal.begin(), binaryVal.end()); }
+	explicit Variable(const char* binaryVal, size_t binaryValSize) : Variable() { type = VariableType::tBinary; binaryValue = std::vector<uint8_t>(binaryVal, binaryVal + binaryValSize); }
 	virtual ~Variable();
 	static PVariable createError(int32_t faultCode, std::string faultString);
 	std::string print(bool stdout = false, bool stderr = false, bool oneLine = false);
