@@ -4,6 +4,8 @@ project(libhomegear_ipc)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
+        src/Ansi.cpp
+        src/Ansi.h
         src/BinaryDecoder.cpp
         src/BinaryDecoder.h
         src/BinaryEncoder.cpp

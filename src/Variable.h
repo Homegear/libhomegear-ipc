@@ -76,9 +76,9 @@ private:
 	typedef void (Variable::*bool_type)() const;
 
 	void this_type_does_not_support_comparisons() const {}
-	std::string print(PVariable variable, std::string indent, bool oneLine);
-	std::string printStruct(PStruct rpcStruct, std::string indent, bool oneLine);
-	std::string printArray(PArray rpcArray, std::string indent, bool oneLine);
+	std::string print(PVariable variable, std::string indent, bool ignoreIndentOnFirstLine, bool oneLine);
+	std::string printStruct(PStruct rpcStruct, std::string indent, bool ignoreIndentOnFirstLine, bool oneLine);
+	std::string printArray(PArray rpcArray, std::string indent, bool ignoreIndentOnFirstLine, bool oneLine);
 public:
 	bool errorStruct = false;
 	VariableType type;
