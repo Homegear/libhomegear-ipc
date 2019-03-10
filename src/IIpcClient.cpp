@@ -134,6 +134,8 @@ void IIpcClient::connect()
 				else
 				{
 					Ipc::Output::printError("Could not connect to socket. Error: " + std::string(strerror(errno)));
+					if (_maintenanceThread.joinable()) _maintenanceThread.join();
+					_maintenanceThread = std::thread(&IIpcClient::onConnectError, this);
 					return;
 				}
 			}
