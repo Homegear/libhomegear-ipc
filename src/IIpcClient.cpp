@@ -253,7 +253,7 @@ void IIpcClient::mainThread()
 			}
 			catch(BinaryRpcException& ex)
 			{
-				Ipc::Output::printError("Error processing packet: " + ex.what());
+				Ipc::Output::printError("Error processing packet: " + std::string(ex.what()));
 				_binaryRpc->reset();
 			}
 		}

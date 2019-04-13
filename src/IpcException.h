@@ -38,13 +38,13 @@ namespace Ipc
 /**
  * Base class for all IPC exceptions
  */
-class IpcException
+class IpcException : public std::exception
 {
     public:
-        IpcException(std::string message) {  _message = message; }
-        virtual ~IpcException() {}
+        explicit IpcException(std::string message) {  _message = message; }
+        virtual ~IpcException() override = default;
 
-        const std::string what() const { return _message; }
+        const char* what() const noexcept override { return _message.c_str(); }
     protected:
         std::string _message;
 };
