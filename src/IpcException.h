@@ -41,12 +41,12 @@ namespace Ipc
 class IpcException : public std::exception
 {
     public:
-        explicit IpcException(std::string message) {  _message = message; }
+        explicit IpcException(const std::string& message) {  _message = message.c_str(); }
         virtual ~IpcException() override = default;
 
-        const char* what() const noexcept override { return _message.c_str(); }
+        const char* what() const noexcept override { return _message; }
     protected:
-        std::string _message;
+        const char* _message = nullptr;
 };
 }
 #endif
