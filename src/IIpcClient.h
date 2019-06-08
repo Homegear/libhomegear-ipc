@@ -1,3 +1,5 @@
+#include <memory>
+
 /* Copyright 2013-2019 Homegear GmbH
  *
  * Homegear is free software: you can redistribute it and/or modify
@@ -54,12 +56,12 @@ namespace Ipc
 class IIpcClient : public IQueue
 {
 public:
-	IIpcClient(std::string socketPath);
+	explicit IIpcClient(std::string socketPath);
 	virtual ~IIpcClient();
 	virtual void dispose();
 
     bool connected() { return !_closed; }
-	PVariable invoke(std::string methodName, PArray& parameters);
+	PVariable invoke(const std::string& methodName, const PArray& parameters);
 	virtual void start();
 	virtual void stop();
 protected:
@@ -73,9 +75,9 @@ protected:
 	class QueueEntry : public IQueueEntry
 	{
 	public:
-		QueueEntry() {}
-		QueueEntry(std::vector<char>& packet) { this->packet = packet; }
-		virtual ~QueueEntry() {}
+		QueueEntry() = default;
+		explicit QueueEntry(std::vector<char>& packet) { this->packet = packet; }
+		virtual ~QueueEntry() = default;
 
 		std::vector<char> packet;
 	};
@@ -85,8 +87,8 @@ protected:
 	std::string _socketPath;
 	int32_t _fileDescriptor = -1;
 	int64_t _lastGargabeCollection = 0;
-	std::atomic_bool _stopped;
-	std::atomic_bool _closed;
+	std::atomic_bool _stopped{true};
+	std::atomic_bool _closed{true};
 	std::mutex _sendMutex;
 	std::mutex _rpcResponsesMutex;
 	std::unordered_map<int64_t, std::unordered_map<int32_t, PIpcResponse>> _rpcResponses;
@@ -102,11 +104,12 @@ protected:
 	std::unique_ptr<RpcDecoder> _rpcDecoder;
 	std::unique_ptr<RpcEncoder> _rpcEncoder;
 
+	void init();
 	void connect();
 	void mainThread();
-	void sendResponse(PVariable& packetId, PVariable& variable);
+	void sendResponse(PVariable packetId, PVariable variable);
 
-	void processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& entry);
+	void processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& entry) override;
 	PVariable send(std::vector<char>& data);
 
 	virtual void onConnect() = 0;
@@ -114,10 +117,10 @@ protected:
     virtual void onDisconnect() {};
 
 	// {{{ RPC methods
-		virtual Ipc::PVariable broadcastEvent(Ipc::PArray& parameters) { return Ipc::PVariable(new Ipc::Variable()); }
-		virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray& parameters) { return Ipc::PVariable(new Ipc::Variable()); }
-		virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray& parameters) { return Ipc::PVariable(new Ipc::Variable()); }
-		virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray& parameters) { return Ipc::PVariable(new Ipc::Variable()); }
+		virtual Ipc::PVariable broadcastEvent(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
+		virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
+		virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
+		virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 	// }}}
 };
 

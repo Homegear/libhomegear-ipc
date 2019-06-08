@@ -1,3 +1,7 @@
+#include <memory>
+
+#include <utility>
+
 /* Copyright 2013-2019 Homegear GmbH
  *
  * Homegear is free software: you can redistribute it and/or modify
@@ -35,10 +39,7 @@ namespace Ipc
 
 IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000)
 {
-	_socketPath = socketPath;
-
-	_closed = true;
-	_stopped = true;
+	_socketPath = std::move(socketPath);
 
 	_binaryRpc = std::unique_ptr<BinaryRpc>(new BinaryRpc());
 	_rpcDecoder = std::unique_ptr<RpcDecoder>(new RpcDecoder());
@@ -91,9 +92,29 @@ void IIpcClient::stop()
     {
     	Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(...)
+}
+
+void IIpcClient::init()
+{
+    try
     {
-    	Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        auto parameters = std::make_shared<Ipc::Array>();
+        parameters->push_back(std::make_shared<Ipc::Variable>(getpid()));
+        Ipc::PVariable result = invoke("setPid", parameters);
+        if (result->errorStruct)
+        {
+            Ipc::Output::printCritical("Critical: Could not transmit PID to server: " + result->structValue->at("faultString")->stringValue);
+            close(_fileDescriptor);
+            _fileDescriptor = -1;
+            _closed = true;
+            return;
+        }
+
+        onConnect();
+    }
+    catch(const std::exception& ex)
+    {
+        Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
 }
 
@@ -101,8 +122,10 @@ void IIpcClient::connect()
 {
 	try
 	{
+
 		for(int32_t i = 0; i < 2; i++)
 		{
+            if(_fileDescriptor != -1) close(_fileDescriptor);
 			_fileDescriptor = socket(AF_LOCAL, SOCK_STREAM | SOCK_NONBLOCK, 0);
 			if(_fileDescriptor == -1)
 			{
@@ -111,7 +134,7 @@ void IIpcClient::connect()
 			}
 
 			Ipc::Output::printInfo("Info: Trying to connect...");
-			sockaddr_un remoteAddress;
+			sockaddr_un remoteAddress{};
 			remoteAddress.sun_family = AF_LOCAL;
 			//104 is the size on BSD systems - slightly smaller than in Linux
 			if(_socketPath.length() > 104)
@@ -144,7 +167,7 @@ void IIpcClient::connect()
 		_closed = false;
 
 		if (_maintenanceThread.joinable()) _maintenanceThread.join();
-		_maintenanceThread = std::thread(&IIpcClient::onConnect, this);
+		_maintenanceThread = std::thread(&IIpcClient::init, this);
 
 		Ipc::Output::printDebug("Connected.");
 	}
@@ -204,14 +227,14 @@ void IIpcClient::mainThread()
 				}
 			}
 
-			timeval timeout;
+			timeval timeout{};
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 100000;
 			fd_set readFileDescriptor;
 			FD_ZERO(&readFileDescriptor);
 			FD_SET(_fileDescriptor, &readFileDescriptor);
 
-			result = select(_fileDescriptor + 1, &readFileDescriptor, NULL, NULL, &timeout);
+			result = select(_fileDescriptor + 1, &readFileDescriptor, nullptr, nullptr, &timeout);
 			if(result == 0) continue;
 			else if(result == -1)
 			{
@@ -375,10 +398,10 @@ PVariable IIpcClient::send(std::vector<char>& data)
     {
     	Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
-    return PVariable(new Variable());
+    return std::make_shared<Variable>();
 }
 
-PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
+PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parameters)
 {
 	try
 	{
@@ -392,7 +415,11 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
 			std::lock_guard<std::mutex> packetIdGuard(_packetIdMutex);
 			packetId = _currentPacketId++;
 		}
-		PArray array(new Array{ PVariable(new Variable(threadId)), PVariable(new Variable(packetId)), PVariable(new Variable(parameters)) });
+		auto array = std::make_shared<Array>();
+	    array->reserve(3);
+	    array->emplace_back(std::move(std::make_shared<Variable>(threadId)));
+        array->emplace_back(std::move(std::make_shared<Variable>(packetId)));
+        array->emplace_back(std::move(std::make_shared<Variable>(parameters)));
 		std::vector<char> data;
 		_rpcEncoder->encodeRequest(methodName, array, data);
 
@@ -437,7 +464,7 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
 		}
 
 		{
-			std::lock_guard<std::mutex> requestInfoGuard(_requestInfoMutex);
+            requestInfoGuard.lock();
 			_requestInfo.erase(threadId);
 		}
 
@@ -454,11 +481,14 @@ PVariable IIpcClient::invoke(std::string methodName, PArray& parameters)
     return Variable::createError(-32500, "Unknown application error.");
 }
 
-void IIpcClient::sendResponse(PVariable& packetId, PVariable& variable)
+void IIpcClient::sendResponse(PVariable packetId, PVariable variable)
 {
 	try
 	{
-		PVariable array(new Variable(PArray(new Array{ packetId, variable })));
+		auto array = std::make_shared<Variable>(VariableType::tArray);
+		array->arrayValue->reserve(2);
+		array->arrayValue->emplace_back(std::move(packetId));
+        array->arrayValue->emplace_back(std::move(variable));
 		std::vector<char> data;
 		_rpcEncoder->encodeResponse(array, data);
 
@@ -467,10 +497,6 @@ void IIpcClient::sendResponse(PVariable& packetId, PVariable& variable)
 	catch(const std::exception& ex)
     {
     	Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-    	Ipc::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }
 
