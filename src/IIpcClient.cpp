@@ -45,6 +45,7 @@ IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000)
 	_rpcDecoder = std::unique_ptr<RpcDecoder>(new RpcDecoder());
 	_rpcEncoder = std::unique_ptr<RpcEncoder>(new RpcEncoder(true));
 
+    _localRpcMethods.emplace("ping", std::bind(&IIpcClient::broadcastEvent, this, std::placeholders::_1));
 	_localRpcMethods.emplace("broadcastEvent", std::bind(&IIpcClient::broadcastEvent, this, std::placeholders::_1));
 	_localRpcMethods.emplace("broadcastNewDevices", std::bind(&IIpcClient::broadcastNewDevices, this, std::placeholders::_1));
 	_localRpcMethods.emplace("broadcastDeleteDevices", std::bind(&IIpcClient::broadcastDeleteDevices, this, std::placeholders::_1));
