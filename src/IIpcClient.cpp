@@ -406,6 +406,12 @@ PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parame
 {
 	try
 	{
+	    if(_closed || _stopped || _disposing)
+        {
+            Ipc::Output::printWarning("Warning: Can't invoke method " + methodName + " as there is open IPC connection.");
+            return Variable::createError(-32500, "Unknown application error.");
+        }
+
 		int64_t threadId = pthread_self();
 		std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
 		PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
