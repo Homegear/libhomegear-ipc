@@ -882,6 +882,7 @@ void JsonDecoder::decodeNumber(const std::string& json, uint32_t& pos, PVariable
 			while (pos < json.length() && json[pos] >= '0' && json[pos] <= '9')
 			{
 				exponent2 = exponent2 * 10 + (json[pos] - '0');
+				pos++;
 			}
 		}
 		if(negative) exponent2 *= -1;
@@ -1008,6 +1009,7 @@ void JsonDecoder::decodeNumber(const std::vector<char>& json, uint32_t& pos, PVa
 			while (pos < json.size() && json[pos] >= '0' && json[pos] <= '9')
 			{
 				exponent2 = exponent2 * 10 + (json[pos] - '0');
+				pos++;
 			}
 		}
 		if(negative) exponent2 *= -1;
