@@ -402,7 +402,7 @@ PVariable IIpcClient::send(std::vector<char>& data)
     return std::make_shared<Variable>();
 }
 
-PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parameters)
+PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parameters, int32_t timeout)
 {
 	try
 	{
@@ -451,10 +451,11 @@ PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parame
 			return result;
 		}
 
+		auto startTime = HelperFunctions::getTime();
 		std::unique_lock<std::mutex> waitLock(requestInfo->waitMutex);
-		while (!requestInfo->conditionVariable.wait_for(waitLock, std::chrono::milliseconds(10000), [&]
+		while (!requestInfo->conditionVariable.wait_for(waitLock, std::chrono::milliseconds(1000), [&]
 		{
-			return response->finished || _closed || _stopped || _disposing;
+			return response->finished || _closed || _stopped || _disposing || (timeout > 0 && HelperFunctions::getTime() - startTime > timeout);
 		}));
 
 		if(!response->finished || response->response->arrayValue->size() != 3 || response->packetId != packetId)
