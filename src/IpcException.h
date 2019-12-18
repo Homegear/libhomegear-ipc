@@ -42,7 +42,7 @@ class IpcException : public std::exception
 {
     public:
         explicit IpcException(const std::string& message) {  _message = message.c_str(); }
-        virtual ~IpcException() override = default;
+        ~IpcException() override = default;
 
         const char* what() const noexcept override { return _message; }
     protected:
