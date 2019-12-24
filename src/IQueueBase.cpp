@@ -46,13 +46,14 @@ IQueueBase::IQueueBase(uint32_t queueCount)
 
 void IQueueBase::printQueueFullError(std::string message)
 {
-	uint32_t droppedEntries = ++_droppedEntries;
-	if(Ipc::HelperFunctions::getTime() - _lastQueueFullError > 10000)
-	{
-		_lastQueueFullError = Ipc::HelperFunctions::getTime();
-		_droppedEntries = 0;
-		Ipc::Output::printError(message + " This message won't repeat for 10 seconds. Dropped outputs since last message: " + std::to_string(droppedEntries));
-	}
+    std::lock_guard<std::mutex> queueFullErrorGuard(_queueFullErrorMutex);
+    _droppedEntries++;
+    if(HelperFunctions::getTime() - _lastQueueFullError > 10000)
+    {
+        _lastQueueFullError = HelperFunctions::getTime();
+        _droppedEntries = 0;
+        Output::printError(message + " This message won't repeat for 10 seconds. Dropped outputs since last message: " + std::to_string(_droppedEntries));
+    }
 }
 
 }
