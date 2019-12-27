@@ -62,7 +62,7 @@ public:
 
     bool connected() { return !_closed; }
 	PVariable invoke(const std::string& methodName, const PArray& parameters, int32_t timeout = 0);
-	virtual void start();
+	virtual void start(size_t processingThreadCount = 10);
 	virtual void stop();
 protected:
 	struct RequestInfo
