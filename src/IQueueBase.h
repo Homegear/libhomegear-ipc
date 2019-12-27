@@ -50,9 +50,8 @@ protected:
 	int32_t _queueCount = 2;
 	std::unique_ptr<std::atomic_bool[]> _stopProcessingThread;
 
-	std::mutex _queueFullErrorMutex;
-	uint32_t _droppedEntries;
-	int64_t _lastQueueFullError;
+    std::atomic<uint32_t> _droppedEntries{0};
+    std::atomic<int64_t> _lastQueueFullError{0};
 };
 
 }
