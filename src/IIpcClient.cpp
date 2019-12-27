@@ -182,6 +182,11 @@ void IIpcClient::connect()
     }
 }
 
+void IIpcClient::start()
+{
+    start(10);
+}
+
 void IIpcClient::start(size_t processingThreadCount)
 {
 	try
