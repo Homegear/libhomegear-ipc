@@ -61,7 +61,7 @@ public:
 	virtual void dispose();
 
     bool connected() { return !_closed; }
-	PVariable invoke(const std::string& methodName, const PArray& parameters);
+	PVariable invoke(const std::string& methodName, const PArray& parameters, int32_t timeout = 0);
 	virtual void start();
 	virtual void stop();
 protected:

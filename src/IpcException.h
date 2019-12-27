@@ -32,21 +32,18 @@
 #define IPCEXCEPTION_H
 
 #include <string>
+#include <stdexcept>
 
 namespace Ipc
 {
 /**
  * Base class for all IPC exceptions
  */
-class IpcException : public std::exception
+class IpcException : public std::runtime_error
 {
     public:
-        explicit IpcException(const std::string& message) {  _message = message.c_str(); }
-        virtual ~IpcException() override = default;
-
-        const char* what() const noexcept override { return _message; }
-    protected:
-        const char* _message = nullptr;
+        explicit IpcException(const std::string& message) : std::runtime_error(message) {};
+        ~IpcException() override = default;
 };
 }
 #endif
