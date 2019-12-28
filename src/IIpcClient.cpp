@@ -184,12 +184,19 @@ void IIpcClient::connect()
 
 void IIpcClient::start()
 {
+    start(10);
+}
+
+void IIpcClient::start(size_t processingThreadCount)
+{
 	try
 	{
 		_stopped = false;
 
-		startQueue(0, false, 10);
-		startQueue(1, false, 10);
+		if(processingThreadCount == 0) processingThreadCount = 1;
+
+		startQueue(0, false, processingThreadCount);
+		startQueue(1, false, processingThreadCount);
 
 		Ipc::Output::printDebug("Debug: Socket path is " + _socketPath);
 
