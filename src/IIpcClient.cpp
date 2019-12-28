@@ -184,12 +184,19 @@ void IIpcClient::connect()
 
 void IIpcClient::start()
 {
+    start(10);
+}
+
+void IIpcClient::start(size_t processingThreadCount)
+{
 	try
 	{
 		_stopped = false;
 
-		startQueue(0, false, 10);
-		startQueue(1, false, 10);
+		if(processingThreadCount == 0) processingThreadCount = 1;
+
+		startQueue(0, false, processingThreadCount);
+		startQueue(1, false, processingThreadCount);
 
 		Ipc::Output::printDebug("Debug: Socket path is " + _socketPath);
 
@@ -402,10 +409,16 @@ PVariable IIpcClient::send(std::vector<char>& data)
     return std::make_shared<Variable>();
 }
 
-PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parameters)
+PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parameters, int32_t timeout)
 {
 	try
 	{
+	    if(_closed || _stopped || _disposing)
+        {
+            Ipc::Output::printWarning("Warning: Can't invoke method " + methodName + " as there is open IPC connection.");
+            return Variable::createError(-32500, "Unknown application error.");
+        }
+
 		int64_t threadId = pthread_self();
 		std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
 		PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
@@ -445,10 +458,11 @@ PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parame
 			return result;
 		}
 
+		auto startTime = HelperFunctions::getTime();
 		std::unique_lock<std::mutex> waitLock(requestInfo->waitMutex);
-		while (!requestInfo->conditionVariable.wait_for(waitLock, std::chrono::milliseconds(10000), [&]
+		while (!requestInfo->conditionVariable.wait_for(waitLock, std::chrono::milliseconds(1000), [&]
 		{
-			return response->finished || _closed || _stopped || _disposing;
+			return response->finished || _closed || _stopped || _disposing || (timeout > 0 && HelperFunctions::getTime() - startTime > timeout);
 		}));
 
 		if(!response->finished || response->response->arrayValue->size() != 3 || response->packetId != packetId)

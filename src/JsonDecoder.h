@@ -45,40 +45,42 @@ namespace Ipc
 class JsonDecoderException : public IpcException
 {
 public:
-	JsonDecoderException(std::string message) : IpcException(message) {}
+	explicit JsonDecoderException(const std::string& message) : IpcException(message) {}
 };
 
 class JsonDecoder
 {
 public:
-	JsonDecoder();
-	virtual ~JsonDecoder() {}
+    JsonDecoder() = default;
+    virtual ~JsonDecoder() = default;
 
-	PVariable decode(const std::string& json);
-	PVariable decode(const std::string& json, uint32_t& bytesRead);
-	PVariable decode(const std::vector<char>& json);
-	PVariable decode(const std::vector<char>& json, uint32_t& bytesRead);
+    static PVariable decode(const std::string& json);
+    static PVariable decode(const std::string& json, uint32_t& bytesRead);
+    static PVariable decode(const std::vector<char>& json);
+    static PVariable decode(const std::vector<char>& json, uint32_t& bytesRead);
+
+    static std::string decodeString(const std::string& s);
 private:
-	static inline bool posValid(const std::string& json, uint32_t pos);
-	static inline bool posValid(const std::vector<char>& json, uint32_t pos);
-	void skipWhitespace(const std::string& json, uint32_t& pos);
-	void skipWhitespace(const std::vector<char>& json, uint32_t& pos);
-	void decodeObject(const std::string& json, uint32_t& pos, PVariable& variable);
-	void decodeObject(const std::vector<char>& json, uint32_t& pos, PVariable& variable);
-	void decodeArray(const std::string& json, uint32_t& pos, PVariable& variable);
-	void decodeArray(const std::vector<char>& json, uint32_t& pos, PVariable& variable);
-	void decodeString(const std::string& json, uint32_t& pos, PVariable& value);
-	void decodeString(const std::vector<char>& json, uint32_t& pos, PVariable& value);
-	void decodeString(const std::string& json, uint32_t& pos, std::string& s);
-	void decodeString(const std::vector<char>& json, uint32_t& pos, std::string& s);
-	void decodeValue(const std::string& json, uint32_t& pos, PVariable& value);
-	void decodeValue(const std::vector<char>& json, uint32_t& pos, PVariable& value);
-	void decodeBoolean(const std::string& json, uint32_t& pos, PVariable& value);
-	void decodeBoolean(const std::vector<char>& json, uint32_t& pos, PVariable& value);
-	void decodeNull(const std::string& json, uint32_t& pos, PVariable& value);
-	void decodeNull(const std::vector<char>& json, uint32_t& pos, PVariable& value);
-	void decodeNumber(const std::string& json, uint32_t& pos, PVariable& value);
-	void decodeNumber(const std::vector<char>& json, uint32_t& pos, PVariable& value);
+    static inline bool posValid(const std::string& json, uint32_t pos);
+    static inline bool posValid(const std::vector<char>& json, uint32_t pos);
+    static void skipWhitespace(const std::string& json, uint32_t& pos);
+    static void skipWhitespace(const std::vector<char>& json, uint32_t& pos);
+    static void decodeObject(const std::string& json, uint32_t& pos, PVariable& variable);
+    static void decodeObject(const std::vector<char>& json, uint32_t& pos, PVariable& variable);
+    static void decodeArray(const std::string& json, uint32_t& pos, PVariable& variable);
+    static void decodeArray(const std::vector<char>& json, uint32_t& pos, PVariable& variable);
+    static void decodeString(const std::string& json, uint32_t& pos, PVariable& value);
+    static void decodeString(const std::vector<char>& json, uint32_t& pos, PVariable& value);
+    static void decodeString(const std::string& json, uint32_t& pos, std::string& s);
+    static void decodeString(const std::vector<char>& json, uint32_t& pos, std::string& s);
+    static bool decodeValue(const std::string& json, uint32_t& pos, PVariable& value);
+    static bool decodeValue(const std::vector<char>& json, uint32_t& pos, PVariable& value);
+    static void decodeBoolean(const std::string& json, uint32_t& pos, PVariable& value);
+    static void decodeBoolean(const std::vector<char>& json, uint32_t& pos, PVariable& value);
+    static void decodeNull(const std::string& json, uint32_t& pos, PVariable& value);
+    static void decodeNull(const std::vector<char>& json, uint32_t& pos, PVariable& value);
+    static bool decodeNumber(const std::string& json, uint32_t& pos, PVariable& value);
+    static bool decodeNumber(const std::vector<char>& json, uint32_t& pos, PVariable& value);
 };
 
 }

@@ -61,8 +61,9 @@ public:
 	virtual void dispose();
 
     bool connected() { return !_closed; }
-	PVariable invoke(const std::string& methodName, const PArray& parameters);
-	virtual void start();
+	PVariable invoke(const std::string& methodName, const PArray& parameters, int32_t timeout = 0);
+    virtual void start();
+	virtual void start(size_t processingThreadCount);
 	virtual void stop();
 protected:
 	struct RequestInfo
