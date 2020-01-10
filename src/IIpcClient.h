@@ -92,12 +92,12 @@ protected:
 	std::atomic_bool _closed{true};
 	std::mutex _sendMutex;
 	std::mutex _rpcResponsesMutex;
-	std::unordered_map<int64_t, std::unordered_map<int32_t, PIpcResponse>> _rpcResponses;
+	std::unordered_map<pthread_t, std::unordered_map<int32_t, PIpcResponse>> _rpcResponses;
 	std::map<std::string, std::function<PVariable(PArray& parameters)>> _localRpcMethods;
 	std::thread _mainThread;
 	std::thread _maintenanceThread;
 	std::mutex _requestInfoMutex;
-	std::map<int64_t, PRequestInfo> _requestInfo;
+	std::map<pthread_t, PRequestInfo> _requestInfo;
 	std::mutex _packetIdMutex;
 	int32_t _currentPacketId = 0;
 
