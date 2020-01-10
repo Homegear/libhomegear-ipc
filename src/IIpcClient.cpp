@@ -341,11 +341,11 @@ void IIpcClient::processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry>& 
 				Ipc::Output::printError("Error: Response has wrong array size.");
 				return;
 			}
-			int64_t threadId = response->arrayValue->at(0)->integerValue64;
+            pthread_t threadId = response->arrayValue->at(0)->integerValue64;
 			int32_t packetId = response->arrayValue->at(1)->integerValue;
 
 			std::lock_guard<std::mutex> requestInfoGuard(_requestInfoMutex);
-			std::map<int64_t, PRequestInfo>::iterator requestIterator = _requestInfo.find(threadId);
+			auto requestIterator = _requestInfo.find(threadId);
 			if (requestIterator != _requestInfo.end())
 			{
 				std::unique_lock<std::mutex> waitLock(requestIterator->second->waitMutex);
@@ -415,11 +415,11 @@ PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parame
 	{
 	    if(_closed || _stopped || _disposing)
         {
-            Ipc::Output::printWarning("Warning: Can't invoke method " + methodName + " as there is open IPC connection.");
+            Ipc::Output::printWarning("Warning: Can't invoke method " + methodName + " as there is no open IPC connection.");
             return Variable::createError(-32500, "Unknown application error.");
         }
 
-		int64_t threadId = pthread_self();
+		auto threadId = pthread_self();
 		std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
 		PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
 		requestInfoGuard.unlock();
