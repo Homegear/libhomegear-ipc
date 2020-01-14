@@ -431,7 +431,7 @@ PVariable IIpcClient::invoke(const std::string& methodName, const PArray& parame
 		}
 		auto array = std::make_shared<Array>();
 	    array->reserve(3);
-	    array->emplace_back(std::move(std::make_shared<Variable>(threadId)));
+	    array->emplace_back(std::move(std::make_shared<Variable>((int64_t)threadId)));
         array->emplace_back(std::move(std::make_shared<Variable>(packetId)));
         array->emplace_back(std::move(std::make_shared<Variable>(parameters)));
 		std::vector<char> data;
