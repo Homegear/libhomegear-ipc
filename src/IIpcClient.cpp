@@ -1,6 +1,7 @@
 #include <memory>
-
 #include <utility>
+
+#include "../config.h"
 
 /* Copyright 2013-2019 Homegear GmbH
  *
@@ -55,6 +56,11 @@ IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000)
 IIpcClient::~IIpcClient()
 {
 	dispose();
+}
+
+std::string IIpcClient::version()
+{
+    return VERSION;
 }
 
 void IIpcClient::dispose()

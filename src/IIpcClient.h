@@ -60,6 +60,7 @@ public:
 	virtual ~IIpcClient();
 	virtual void dispose();
 
+	static std::string version();
     bool connected() { return !_closed; }
 	PVariable invoke(const std::string& methodName, const PArray& parameters, int32_t timeout = 0);
     virtual void start();
