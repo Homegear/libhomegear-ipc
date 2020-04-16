@@ -124,6 +124,7 @@ protected:
 		virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 		virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 		virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
+        virtual Ipc::PVariable broadcastVariableProfileStateChanged(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 	// }}}
 };
 

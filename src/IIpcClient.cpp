@@ -51,6 +51,7 @@ IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000)
 	_localRpcMethods.emplace("broadcastNewDevices", std::bind(&IIpcClient::broadcastNewDevices, this, std::placeholders::_1));
 	_localRpcMethods.emplace("broadcastDeleteDevices", std::bind(&IIpcClient::broadcastDeleteDevices, this, std::placeholders::_1));
 	_localRpcMethods.emplace("broadcastUpdateDevice", std::bind(&IIpcClient::broadcastUpdateDevice, this, std::placeholders::_1));
+    _localRpcMethods.emplace("broadcastVariableProfileStateChanged", std::bind(&IIpcClient::broadcastVariableProfileStateChanged, this, std::placeholders::_1));
 }
 
 IIpcClient::~IIpcClient()
