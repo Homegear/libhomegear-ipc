@@ -60,6 +60,7 @@ public:
 	virtual ~IIpcClient();
 	virtual void dispose();
 
+	static std::string version();
     bool connected() { return !_closed; }
 	PVariable invoke(const std::string& methodName, const PArray& parameters, int32_t timeout = 0);
     virtual void start();
@@ -123,6 +124,7 @@ protected:
 		virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 		virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 		virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
+        virtual Ipc::PVariable broadcastVariableProfileStateChanged(Ipc::PArray& parameters) { return std::make_shared<Ipc::Variable>(); }
 	// }}}
 };
 

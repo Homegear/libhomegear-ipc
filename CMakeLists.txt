@@ -36,8 +36,7 @@ set(SOURCE_FILES
         src/RpcEncoder.h
         src/RpcHeader.h
         src/Variable.cpp
-        src/Variable.h
-        config.h)
+        src/Variable.h)
 
 add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
 
