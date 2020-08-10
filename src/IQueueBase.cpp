@@ -32,27 +32,23 @@
 #include "Output.h"
 #include "HelperFunctions.h"
 
-namespace Ipc
-{
+namespace Ipc {
 
-IQueueBase::IQueueBase(uint32_t queueCount)
-{
-	if(queueCount < 1000000) _queueCount = queueCount;
-	_stopProcessingThread.reset(new std::atomic_bool[queueCount]);
+IQueueBase::IQueueBase(uint32_t queueCount) {
+  if (queueCount < 1000000) _queueCount = queueCount;
+  _stopProcessingThread.reset(new std::atomic_bool[queueCount]);
 
-	_lastQueueFullError = 0;
-	_droppedEntries = 0;
+  _lastQueueFullError = 0;
+  _droppedEntries = 0;
 }
 
-void IQueueBase::printQueueFullError(std::string message)
-{
-    uint32_t droppedEntries = ++_droppedEntries;
-    if(HelperFunctions::getTime() - _lastQueueFullError > 10000)
-    {
-        _lastQueueFullError = HelperFunctions::getTime();
-        _droppedEntries = 0;
-        Output::printError(message + " This message won't repeat for 10 seconds. Dropped outputs since last message: " + std::to_string(droppedEntries));
-    }
+void IQueueBase::printQueueFullError(std::string message) {
+  uint32_t droppedEntries = ++_droppedEntries;
+  if (HelperFunctions::getTime() - _lastQueueFullError > 10000) {
+    _lastQueueFullError = HelperFunctions::getTime();
+    _droppedEntries = 0;
+    Output::printError(message + " This message won't repeat for 10 seconds. Dropped outputs since last message: " + std::to_string(droppedEntries));
+  }
 }
 
 }

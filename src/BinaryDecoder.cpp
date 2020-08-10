@@ -30,191 +30,168 @@
 
 #include "BinaryDecoder.h"
 
-namespace Ipc
-{
+namespace Ipc {
 
-BinaryDecoder::BinaryDecoder()
-{
-	checkEndianness();
+BinaryDecoder::BinaryDecoder() {
+  checkEndianness();
 }
 
-void BinaryDecoder::checkEndianness()
-{
-	union {
-		uint32_t i;
-		char c[4];
-	} bint = {0x01020304};
+void BinaryDecoder::checkEndianness() {
+  union {
+    uint32_t i;
+    char c[4];
+  } bint = {0x01020304};
 
-	_isBigEndian = bint.c[0] == 1;
+  _isBigEndian = bint.c[0] == 1;
 }
 
-void BinaryDecoder::memcpyBigEndian(char* to, const char* from, const uint32_t& length)
-{
-	if(_isBigEndian) memcpy(to, from, length);
-	else
-	{
-		uint32_t last = length - 1;
-		for(uint32_t i = 0; i < length; i++)
-		{
-			to[i] = from[last - i];
-		}
-	}
+void BinaryDecoder::memcpyBigEndian(char *to, const char *from, const uint32_t &length) const {
+  if (_isBigEndian) memcpy(to, from, length);
+  else {
+    uint32_t last = length - 1;
+    for (uint32_t i = 0; i < length; i++) {
+      to[i] = from[last - i];
+    }
+  }
 }
 
-void BinaryDecoder::memcpyBigEndian(uint8_t* to, const uint8_t* from, const uint32_t& length)
-{
-	memcpyBigEndian((char*)to, (char*)from, length);
+void BinaryDecoder::memcpyBigEndian(uint8_t *to, const uint8_t *from, const uint32_t &length) {
+  memcpyBigEndian((char *)to, (char *)from, length);
 }
 
-int32_t BinaryDecoder::decodeInteger(std::vector<char>& encodedData, uint32_t& position)
-{
-	int32_t integer = 0;
-	if(position + 4 > encodedData.size()) return 0;
-	memcpyBigEndian((char*)&integer, &encodedData.at(position), 4);
-	position += 4;
-	return integer;
+int32_t BinaryDecoder::decodeInteger(std::vector<char> &encodedData, uint32_t &position) {
+  int32_t integer = 0;
+  if (position + 4 > encodedData.size()) return 0;
+  memcpyBigEndian((char *)&integer, &encodedData.at(position), 4);
+  position += 4;
+  return integer;
 }
 
-int32_t BinaryDecoder::decodeInteger(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	int32_t integer = 0;
-	if(position + 4 > encodedData.size()) return 0;
-	memcpyBigEndian((char*)&integer, (char*)&encodedData.at(position), 4);
-	position += 4;
-	return integer;
+int32_t BinaryDecoder::decodeInteger(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  int32_t integer = 0;
+  if (position + 4 > encodedData.size()) return 0;
+  memcpyBigEndian((char *)&integer, (char *)&encodedData.at(position), 4);
+  position += 4;
+  return integer;
 }
 
-int64_t BinaryDecoder::decodeInteger64(std::vector<char>& encodedData, uint32_t& position)
-{
-	int64_t integer = 0;
-	if(position + 8 > encodedData.size()) return 0;
-	memcpyBigEndian((char*)&integer, &encodedData.at(position), 8);
-	position += 8;
-	return integer;
+int64_t BinaryDecoder::decodeInteger64(std::vector<char> &encodedData, uint32_t &position) {
+  int64_t integer = 0;
+  if (position + 8 > encodedData.size()) return 0;
+  memcpyBigEndian((char *)&integer, &encodedData.at(position), 8);
+  position += 8;
+  return integer;
 }
 
-int64_t BinaryDecoder::decodeInteger64(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	int64_t integer = 0;
-	if(position + 8 > encodedData.size()) return 0;
-	memcpyBigEndian((char*)&integer, (char*)&encodedData.at(position), 8);
-	position += 8;
-	return integer;
+int64_t BinaryDecoder::decodeInteger64(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  int64_t integer = 0;
+  if (position + 8 > encodedData.size()) return 0;
+  memcpyBigEndian((char *)&integer, (char *)&encodedData.at(position), 8);
+  position += 8;
+  return integer;
 }
 
-uint8_t BinaryDecoder::decodeByte(std::vector<char>& encodedData, uint32_t& position)
-{
-	uint8_t byte = 0;
-	if(position + 1 > encodedData.size()) return 0;
-	byte = encodedData.at(position);
-	position += 1;
-	return byte;
+uint8_t BinaryDecoder::decodeByte(std::vector<char> &encodedData, uint32_t &position) {
+  uint8_t byte = 0;
+  if (position + 1 > encodedData.size()) return 0;
+  byte = encodedData.at(position);
+  position += 1;
+  return byte;
 }
 
-uint8_t BinaryDecoder::decodeByte(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	uint8_t byte = 0;
-	if(position + 1 > encodedData.size()) return 0;
-	byte = encodedData.at(position);
-	position += 1;
-	return byte;
+uint8_t BinaryDecoder::decodeByte(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  uint8_t byte = 0;
+  if (position + 1 > encodedData.size()) return 0;
+  byte = encodedData.at(position);
+  position += 1;
+  return byte;
 }
 
-std::string BinaryDecoder::decodeString(std::vector<char>& encodedData, uint32_t& position)
-{
-	int32_t stringLength = decodeInteger(encodedData, position);
-	if(position + stringLength > encodedData.size() || stringLength == 0) return "";
-	std::string string(&encodedData.at(position), stringLength);
-	position += stringLength;
-	return string;
+std::string BinaryDecoder::decodeString(std::vector<char> &encodedData, uint32_t &position) {
+  int32_t stringLength = decodeInteger(encodedData, position);
+  if (position + stringLength > encodedData.size() || stringLength == 0) return "";
+  std::string string(&encodedData.at(position), stringLength);
+  position += stringLength;
+  return string;
 }
 
-std::string BinaryDecoder::decodeString(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	int32_t stringLength = decodeInteger(encodedData, position);
-	if(position + stringLength > encodedData.size() || stringLength == 0) return "";
-	std::string string((char*)&encodedData.at(position), stringLength);
-	position += stringLength;
-	return string;
+std::string BinaryDecoder::decodeString(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  int32_t stringLength = decodeInteger(encodedData, position);
+  if (position + stringLength > encodedData.size() || stringLength == 0) return "";
+  std::string string((char *)&encodedData.at(position), stringLength);
+  position += stringLength;
+  return string;
 }
 
-std::vector<uint8_t> BinaryDecoder::decodeBinary(std::vector<char>& encodedData, uint32_t& position)
-{
-	std::vector<uint8_t> data;
-	int32_t length = decodeInteger(encodedData, position);
-	if(position + length > encodedData.size() || length == 0) return data;
-	data.insert(data.end(), &encodedData.at(position), &encodedData.at(position) + length);
-	position += length;
-	return data;
+std::vector<uint8_t> BinaryDecoder::decodeBinary(std::vector<char> &encodedData, uint32_t &position) {
+  std::vector<uint8_t> data;
+  int32_t length = decodeInteger(encodedData, position);
+  if (position + length > encodedData.size() || length == 0) return data;
+  data.insert(data.end(), &encodedData.at(position), &encodedData.at(position) + length);
+  position += length;
+  return data;
 }
 
-std::vector<uint8_t> BinaryDecoder::decodeBinary(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	std::vector<uint8_t> data;
-	int32_t length = decodeInteger(encodedData, position);
-	if(position + length > encodedData.size() || length == 0) return data;
-	data.insert(data.end(), &encodedData.at(position), &encodedData.at(position) + length);
-	position += length;
-	return data;
+std::vector<uint8_t> BinaryDecoder::decodeBinary(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  std::vector<uint8_t> data;
+  int32_t length = decodeInteger(encodedData, position);
+  if (position + length > encodedData.size() || length == 0) return data;
+  data.insert(data.end(), &encodedData.at(position), &encodedData.at(position) + length);
+  position += length;
+  return data;
 }
 
-double BinaryDecoder::decodeFloat(std::vector<char>& encodedData, uint32_t& position)
-{
-	if(position + 8 > encodedData.size()) return 0;
-	int32_t mantissa = 0;
-	int32_t exponent = 0;
-	memcpyBigEndian((char*)&mantissa, &encodedData.at(position), 4);
-	position += 4;
-	memcpyBigEndian((char*)&exponent, &encodedData.at(position), 4);
-	position += 4;
-	double floatValue = (double)mantissa / 0x40000000;
-	floatValue *= std::pow(2, exponent);
-	if(floatValue != 0)
-	{
-		int32_t digits = std::lround(std::floor(std::log10(floatValue) + 1));
-		double factor = std::pow(10, 9 - digits);
-		//Round to 9 digits
-		floatValue = std::floor(floatValue * factor + 0.5) / factor;
-	}
-	return floatValue;
+double BinaryDecoder::decodeFloat(std::vector<char> &encodedData, uint32_t &position) {
+  if (position + 8 > encodedData.size()) return 0;
+  int32_t mantissa = 0;
+  int32_t exponent = 0;
+  memcpyBigEndian((char *)&mantissa, &encodedData.at(position), 4);
+  position += 4;
+  memcpyBigEndian((char *)&exponent, &encodedData.at(position), 4);
+  position += 4;
+  double floatValue = (double)mantissa / 0x40000000;
+  floatValue *= std::pow(2, exponent);
+  if (floatValue != 0) {
+    int32_t digits = std::lround(std::floor(std::log10(floatValue) + 1));
+    double factor = std::pow(10, 9 - digits);
+    //Round to 9 digits
+    floatValue = std::floor(floatValue * factor + 0.5) / factor;
+  }
+  return floatValue;
 }
 
-double BinaryDecoder::decodeFloat(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	if(position + 8 > encodedData.size()) return 0;
-	int32_t mantissa = 0;
-	int32_t exponent = 0;
-	memcpyBigEndian((char*)&mantissa, (char*)&encodedData.at(position), 4);
-	position += 4;
-	memcpyBigEndian((char*)&exponent, (char*)&encodedData.at(position), 4);
-	position += 4;
-	double floatValue = (double)mantissa / 0x40000000;
-	if(exponent >= 0) floatValue *= (1 << exponent);
-	else floatValue /= (1 << (exponent * -1));
-	if(floatValue != 0)
-	{
-		int32_t digits = std::lround(std::floor(std::log10(floatValue) + 1));
-		double factor = std::pow(10, 9 - digits);
-		//Round to 9 digits
-		floatValue = std::floor(floatValue * factor + 0.5) / factor;
-	}
-	return floatValue;
+double BinaryDecoder::decodeFloat(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  if (position + 8 > encodedData.size()) return 0;
+  int32_t mantissa = 0;
+  int32_t exponent = 0;
+  memcpyBigEndian((char *)&mantissa, (char *)&encodedData.at(position), 4);
+  position += 4;
+  memcpyBigEndian((char *)&exponent, (char *)&encodedData.at(position), 4);
+  position += 4;
+  double floatValue = (double)mantissa / 0x40000000;
+  if (exponent >= 0) floatValue *= (1 << exponent);
+  else floatValue /= (1 << (exponent * -1));
+  if (floatValue != 0) {
+    int32_t digits = std::lround(std::floor(std::log10(floatValue) + 1));
+    double factor = std::pow(10, 9 - digits);
+    //Round to 9 digits
+    floatValue = std::floor(floatValue * factor + 0.5) / factor;
+  }
+  return floatValue;
 }
 
-bool BinaryDecoder::decodeBoolean(std::vector<char>& encodedData, uint32_t& position)
-{
-	if(position + 1 > encodedData.size()) return 0;
-	bool boolean = (bool)encodedData.at(position);
-	position += 1;
-	return boolean;
+bool BinaryDecoder::decodeBoolean(std::vector<char> &encodedData, uint32_t &position) {
+  if (position + 1 > encodedData.size()) return 0;
+  bool boolean = (bool)encodedData.at(position);
+  position += 1;
+  return boolean;
 }
 
-bool BinaryDecoder::decodeBoolean(std::vector<uint8_t>& encodedData, uint32_t& position)
-{
-	if(position + 1 > encodedData.size()) return 0;
-	bool boolean = (bool)encodedData.at(position);
-	position += 1;
-	return boolean;
+bool BinaryDecoder::decodeBoolean(std::vector<uint8_t> &encodedData, uint32_t &position) {
+  if (position + 1 > encodedData.size()) return 0;
+  bool boolean = (bool)encodedData.at(position);
+  position += 1;
+  return boolean;
 }
 
 }

@@ -38,57 +38,55 @@
 #include <vector>
 #include <string>
 
-namespace Ipc
-{
+namespace Ipc {
 
-class BinaryDecoder
-{
-public:
-	BinaryDecoder();
-	virtual ~BinaryDecoder() {}
+class BinaryDecoder {
+ public:
+  BinaryDecoder();
+  virtual ~BinaryDecoder() = default;
 
-	virtual int32_t decodeInteger(std::vector<char>& encodedData, uint32_t& position);
-	virtual int32_t decodeInteger(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual int64_t decodeInteger64(std::vector<char>& encodedData, uint32_t& position);
-	virtual int64_t decodeInteger64(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual uint8_t decodeByte(std::vector<char>& encodedData, uint32_t& position);
-	virtual uint8_t decodeByte(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual std::string decodeString(std::vector<char>& encodedData, uint32_t& position);
-	virtual std::string decodeString(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual std::vector<uint8_t> decodeBinary(std::vector<char>& encodedData, uint32_t& position);
-	virtual std::vector<uint8_t> decodeBinary(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual bool decodeBoolean(std::vector<char>& encodedData, uint32_t& position);
-	virtual bool decodeBoolean(std::vector<uint8_t>& encodedData, uint32_t& position);
-	virtual double decodeFloat(std::vector<char>& encodedData, uint32_t& position);
-	virtual double decodeFloat(std::vector<uint8_t>& encodedData, uint32_t& position);
-private:
-	/**
-	 * The result of checkEndianness() is stored in this variable. This is done through calling "init".
-	 */
-	bool _isBigEndian = true;
+  virtual int32_t decodeInteger(std::vector<char> &encodedData, uint32_t &position);
+  virtual int32_t decodeInteger(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual int64_t decodeInteger64(std::vector<char> &encodedData, uint32_t &position);
+  virtual int64_t decodeInteger64(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual uint8_t decodeByte(std::vector<char> &encodedData, uint32_t &position);
+  virtual uint8_t decodeByte(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual std::string decodeString(std::vector<char> &encodedData, uint32_t &position);
+  virtual std::string decodeString(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual std::vector<uint8_t> decodeBinary(std::vector<char> &encodedData, uint32_t &position);
+  virtual std::vector<uint8_t> decodeBinary(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual bool decodeBoolean(std::vector<char> &encodedData, uint32_t &position);
+  virtual bool decodeBoolean(std::vector<uint8_t> &encodedData, uint32_t &position);
+  virtual double decodeFloat(std::vector<char> &encodedData, uint32_t &position);
+  virtual double decodeFloat(std::vector<uint8_t> &encodedData, uint32_t &position);
+ private:
+  /**
+   * The result of checkEndianness() is stored in this variable. This is done through calling "init".
+   */
+  bool _isBigEndian = true;
 
-	/**
-	 * Checks if the system is little or big endian.
-	 */
-	void checkEndianness();
+  /**
+   * Checks if the system is little or big endian.
+   */
+  void checkEndianness();
 
-	/**
-	 * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
-	 *
-	 * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
-	 * @param[in] from The source array.
-	 * @param length The number of bytes to copy.
-	 */
-	void memcpyBigEndian(char* to, const char* from, const uint32_t& length);
+  /**
+   * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
+   *
+   * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
+   * @param[in] from The source array.
+   * @param length The number of bytes to copy.
+   */
+  void memcpyBigEndian(char *to, const char *from, const uint32_t &length) const;
 
-	/**
-	 * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
-	 *
-	 * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
-	 * @param[in] from The source array.
-	 * @param length The number of bytes to copy.
-	 */
-	void memcpyBigEndian(uint8_t* to, const uint8_t* from, const uint32_t& length);
+  /**
+   * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
+   *
+   * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
+   * @param[in] from The source array.
+   * @param length The number of bytes to copy.
+   */
+  void memcpyBigEndian(uint8_t *to, const uint8_t *from, const uint32_t &length);
 };
 
 }

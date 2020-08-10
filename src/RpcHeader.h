@@ -33,15 +33,13 @@
 
 #include <string>
 
-namespace Ipc
-{
-class RpcHeader
-{
-public:
-	RpcHeader() {}
-	virtual ~RpcHeader() {}
+namespace Ipc {
+class RpcHeader {
+ public:
+  RpcHeader() {}
+  virtual ~RpcHeader() {}
 
-	std::string authorization;
+  std::string authorization;
 };
 }
 #endif

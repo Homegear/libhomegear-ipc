@@ -30,140 +30,117 @@
 
 #include "HelperFunctions.h"
 
-namespace Ipc
-{
+namespace Ipc {
 
-HelperFunctions::HelperFunctions()
-{
+HelperFunctions::HelperFunctions() {
 }
 
-HelperFunctions::~HelperFunctions()
-{
+HelperFunctions::~HelperFunctions() {
 }
 
-std::string HelperFunctions::getHexString(const uint8_t* buffer, uint32_t size)
-{
-	if(!buffer) return "";
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(const uint8_t* i = buffer; i < buffer + size; ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)(*i);
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const uint8_t *buffer, uint32_t size) {
+  if (!buffer) return "";
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (const uint8_t *i = buffer; i < buffer + size; ++i) {
+    stringstream << std::setw(2) << (int32_t)(*i);
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(const char* buffer, uint32_t size)
-{
-	if(!buffer) return "";
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(const char* i = buffer; i < buffer + size; ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const char *buffer, uint32_t size) {
+  if (!buffer) return "";
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (const char *i = buffer; i < buffer + size; ++i) {
+    stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(const std::vector<uint8_t>& data)
-{
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(std::vector<uint8_t>::const_iterator i = data.begin(); i != data.end(); ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)(*i);
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const std::vector<uint8_t> &data) {
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (std::vector<uint8_t>::const_iterator i = data.begin(); i != data.end(); ++i) {
+    stringstream << std::setw(2) << (int32_t)(*i);
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(const std::vector<char>& data)
-{
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(std::vector<char>::const_iterator i = data.begin(); i != data.end(); ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const std::vector<char> &data) {
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (std::vector<char>::const_iterator i = data.begin(); i != data.end(); ++i) {
+    stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(const std::vector<uint16_t>& data)
-{
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(std::vector<uint16_t>::const_iterator i = data.begin(); i != data.end(); ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)((*i) >> 8) << std::setw(2) << (int32_t)((*i) & 0xFF);
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const std::vector<uint16_t> &data) {
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (std::vector<uint16_t>::const_iterator i = data.begin(); i != data.end(); ++i) {
+    stringstream << std::setw(2) << (int32_t)((*i) >> 8) << std::setw(2) << (int32_t)((*i) & 0xFF);
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(const std::string& data)
-{
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0') << std::uppercase;
-	for(std::string::const_iterator i = data.begin(); i != data.end(); ++i)
-	{
-		stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
-	}
-	stringstream << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(const std::string &data) {
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::uppercase;
+  for (std::string::const_iterator i = data.begin(); i != data.end(); ++i) {
+    stringstream << std::setw(2) << (int32_t)((uint8_t)(*i));
+  }
+  stringstream << std::dec;
+  return stringstream.str();
 }
 
-std::string HelperFunctions::getHexString(int32_t number, int32_t width)
-{
-	std::ostringstream stringstream;
-	stringstream << std::hex << std::setfill('0');
-	if(width > -1) stringstream << std::setw(width);
-	stringstream << std::uppercase << number << std::dec;
-	return stringstream.str();
+std::string HelperFunctions::getHexString(int32_t number, int32_t width) {
+  std::ostringstream stringstream;
+  stringstream << std::hex << std::setfill('0');
+  if (width > -1) stringstream << std::setw(width);
+  stringstream << std::uppercase << number << std::dec;
+  return stringstream.str();
 }
 
-int64_t HelperFunctions::getTime()
-{
-	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+int64_t HelperFunctions::getTime() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-int64_t HelperFunctions::getTimeMicroseconds()
-{
-	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+int64_t HelperFunctions::getTimeMicroseconds() {
+  return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-int32_t HelperFunctions::getTimeSeconds()
-{
-	int32_t time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();;
-	if(time < 0) time = 0;
-	return time;
+int32_t HelperFunctions::getTimeSeconds() {
+  int32_t time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();;
+  if (time < 0) time = 0;
+  return time;
 }
 
-std::string HelperFunctions::getTimeString(int64_t time)
-{
-	const char timeFormat[] = "%x %X";
-	std::time_t t;
-	int32_t milliseconds;
-	if(time > 0)
-	{
-		t = std::time_t(time / 1000);
-		milliseconds = time % 1000;
-	}
-	else
-	{
-		const auto timePoint = std::chrono::system_clock::now();
-		t = std::chrono::system_clock::to_time_t(timePoint);
-		milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()).count() % 1000;
-	}
-	char timeString[50];
-	std::tm localTime;
-	localtime_r(&t, &localTime);
-	strftime(&timeString[0], 50, &timeFormat[0], &localTime);
-	std::ostringstream timeStream;
-	timeStream << timeString << "." << std::setw(3) << std::setfill('0') << milliseconds;
-	return timeStream.str();
+std::string HelperFunctions::getTimeString(int64_t time) {
+  const char timeFormat[] = "%x %X";
+  std::time_t t;
+  int32_t milliseconds;
+  if (time > 0) {
+    t = std::time_t(time / 1000);
+    milliseconds = time % 1000;
+  } else {
+    const auto timePoint = std::chrono::system_clock::now();
+    t = std::chrono::system_clock::to_time_t(timePoint);
+    milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()).count() % 1000;
+  }
+  char timeString[50];
+  std::tm localTime;
+  localtime_r(&t, &localTime);
+  strftime(&timeString[0], 50, &timeFormat[0], &localTime);
+  std::ostringstream timeStream;
+  timeStream << timeString << "." << std::setw(3) << std::setfill('0') << milliseconds;
+  return timeStream.str();
 }
 
 }

@@ -37,21 +37,19 @@
 #include <thread>
 #include <vector>
 
-namespace Ipc
-{
-class IQueueBase
-{
-public:
-	IQueueBase(uint32_t queueCount);
-	virtual ~IQueueBase() {}
+namespace Ipc {
+class IQueueBase {
+ public:
+  IQueueBase(uint32_t queueCount);
+  virtual ~IQueueBase() {}
 
-	void printQueueFullError(std::string message);
-protected:
-	int32_t _queueCount = 2;
-	std::unique_ptr<std::atomic_bool[]> _stopProcessingThread;
+  void printQueueFullError(std::string message);
+ protected:
+  int32_t _queueCount = 2;
+  std::unique_ptr<std::atomic_bool[]> _stopProcessingThread;
 
-    std::atomic<uint32_t> _droppedEntries{0};
-    std::atomic<int64_t> _lastQueueFullError{0};
+  std::atomic<uint32_t> _droppedEntries{0};
+  std::atomic<int64_t> _lastQueueFullError{0};
 };
 
 }
