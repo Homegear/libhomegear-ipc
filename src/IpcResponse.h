@@ -35,20 +35,17 @@
 
 #include <atomic>
 
-namespace Ipc
-{
+namespace Ipc {
 
-class IpcResponse
-{
-public:
-	std::atomic_bool finished;
-	int32_t packetId = 0;
-	PVariable response;
+class IpcResponse {
+ public:
+  std::atomic_bool finished;
+  int32_t packetId = 0;
+  PVariable response;
 
-	IpcResponse()
-	{
-		finished = false;
-	}
+  IpcResponse() {
+    finished = false;
+  }
 };
 
 typedef std::shared_ptr<IpcResponse> PIpcResponse;

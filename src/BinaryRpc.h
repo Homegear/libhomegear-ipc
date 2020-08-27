@@ -35,71 +35,67 @@
 #include <cstring>
 #include "IpcException.h"
 
-namespace Ipc
-{
+namespace Ipc {
 
-class BinaryRpcException : public IpcException
-{
-public:
-	BinaryRpcException(std::string message) : IpcException(message) {}
+class BinaryRpcException : public IpcException {
+ public:
+  BinaryRpcException(std::string message) : IpcException(message) {}
 };
 
-class BinaryRpc
-{
-public:
-	enum class Type
-	{
-		unknown,
-		request,
-		response
-	};
+class BinaryRpc {
+ public:
+  enum class Type {
+    unknown,
+    request,
+    response
+  };
 
-	BinaryRpc();
-	virtual ~BinaryRpc();
+  BinaryRpc();
+  virtual ~BinaryRpc();
 
-	Type getType() { return _type; }
-	bool hasHeader() { return _hasHeader; }
-	bool processingStarted() { return _processingStarted; }
-	bool isFinished() { return _finished; }
-	std::vector<char>& getData() { return _data; }
+  Type getType() { return _type; }
+  bool hasHeader() { return _hasHeader; }
+  bool processingStarted() { return _processingStarted; }
+  bool isFinished() { return _finished; }
+  std::vector<char> &getData() { return _data; }
 
-	void reset();
+  void reset();
 
-	/**
-	 * Parses binary RPC data from a buffer.
-	 *
-	 * @param buffer The buffer to parse
-	 * @param bufferLength The maximum number of bytes to process.
-	 * @return The number of processed bytes.
-	 */
-	int32_t process(char* buffer, int32_t bufferLength);
-private:
-	bool _hasHeader = false;
-	bool _processingStarted = false;
-	bool _finished = false;
-	Type _type = Type::unknown;
-	uint32_t _headerSize = 0;
-	uint32_t _dataSize = 0;
-	std::vector<char> _data;
+  /**
+   * Parses binary RPC data from a buffer.
+   *
+   * @param buffer The buffer to parse
+   * @param bufferLength The maximum number of bytes to process.
+   * @return The number of processed bytes.
+   */
+  int32_t process(char *buffer, int32_t bufferLength);
+ private:
+  bool _hasHeader = false;
+  bool _processingStarted = false;
+  bool _finished = false;
+  Type _type = Type::unknown;
+  uint32_t _headerSize = 0;
+  uint32_t _dataSize = 0;
+  std::vector<char> _data;
 
-	/**
-	 * The result of checkEndianness() is stored in this variable. This is done through calling "init".
-	 */
-	bool _isBigEndian = true;
+  /**
+   * The result of checkEndianness() is stored in this variable. This is done through calling "init".
+   */
+  bool _isBigEndian = true;
 
-	/**
-	 * Checks if the system is little or big endian.
-	 */
-	void checkEndianness();
+  /**
+   * Checks if the system is little or big endian.
+   */
+  void checkEndianness();
 
-	/**
-	 * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
-	 *
-	 * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
-	 * @param[in] from The source array.
-	 * @param length The number of bytes to copy.
-	 */
-	void memcpyBigEndian(char* to, const char* from, const uint32_t& length);
+  /**
+   * Copies binary values from one memory location to another reversing the byte order when the system is little endian.
+   *
+   * @param[out] to The destination array. No memory is allocated, so make sure, the array is large enough.
+   * @param[in] from The source array.
+   * @param length The number of bytes to copy.
+   */
+  void memcpyBigEndian(char *to, const char *from, const uint32_t &length);
 };
 
 }
