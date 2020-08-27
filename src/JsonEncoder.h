@@ -39,41 +39,39 @@
 #include <codecvt>
 #endif
 
-namespace Ipc
-{
+namespace Ipc {
 
-class JsonEncoder
-{
-public:
-	JsonEncoder();
-	virtual ~JsonEncoder() {}
+class JsonEncoder {
+ public:
+  JsonEncoder();
+  virtual ~JsonEncoder() {}
 
-	std::string getString(const PVariable variable);
-	std::vector<char> getVector(const PVariable variable);
+  std::string getString(const PVariable variable);
+  std::vector<char> getVector(const PVariable variable);
 
-	std::string encodeString(const std::string& s);
-private:
-	int32_t _requestId = 1;
+  std::string encodeString(const std::string &s);
+ private:
+  int32_t _requestId = 1;
 
-	std::string toString(double number);
-	void encodeValue(const PVariable& variable, std::ostringstream& s);
-	void encodeValue(const PVariable& variable, std::vector<char>& s);
-	void encodeArray(const PVariable& variable, std::ostringstream& s);
-	void encodeArray(const PVariable& variable, std::vector<char>& s);
-	void encodeStruct(const PVariable& variable, std::ostringstream& s);
-	void encodeStruct(const PVariable& variable, std::vector<char>& s);
-	void encodeBoolean(const PVariable& variable, std::ostringstream& s);
-	void encodeBoolean(const PVariable& variable, std::vector<char>& s);
-	void encodeInteger( const PVariable& variable, std::ostringstream& s);
-	void encodeInteger( const PVariable& variable, std::vector<char>& s);
-	void encodeInteger64( const PVariable& variable, std::ostringstream& s);
-	void encodeInteger64( const PVariable& variable, std::vector<char>& s);
-	void encodeFloat(const PVariable& variable, std::ostringstream& s);
-	void encodeFloat(const PVariable& variable, std::vector<char>& s);
-	void encodeString(const PVariable& variable, std::ostringstream& s);
-	void encodeString(const PVariable& variable, std::vector<char>& s);
-	void encodeVoid(const PVariable& variable, std::ostringstream& s);
-	void encodeVoid(const PVariable& variable, std::vector<char>& s);
+  std::string toString(double number);
+  void encodeValue(const PVariable &variable, std::ostringstream &s);
+  void encodeValue(const PVariable &variable, std::vector<char> &s);
+  void encodeArray(const PVariable &variable, std::ostringstream &s);
+  void encodeArray(const PVariable &variable, std::vector<char> &s);
+  void encodeStruct(const PVariable &variable, std::ostringstream &s);
+  void encodeStruct(const PVariable &variable, std::vector<char> &s);
+  void encodeBoolean(const PVariable &variable, std::ostringstream &s);
+  void encodeBoolean(const PVariable &variable, std::vector<char> &s);
+  void encodeInteger(const PVariable &variable, std::ostringstream &s);
+  void encodeInteger(const PVariable &variable, std::vector<char> &s);
+  void encodeInteger64(const PVariable &variable, std::ostringstream &s);
+  void encodeInteger64(const PVariable &variable, std::vector<char> &s);
+  void encodeFloat(const PVariable &variable, std::ostringstream &s);
+  void encodeFloat(const PVariable &variable, std::vector<char> &s);
+  void encodeString(const PVariable &variable, std::ostringstream &s);
+  void encodeString(const PVariable &variable, std::vector<char> &s);
+  void encodeVoid(const PVariable &variable, std::ostringstream &s);
+  void encodeVoid(const PVariable &variable, std::vector<char> &s);
 };
 
 }

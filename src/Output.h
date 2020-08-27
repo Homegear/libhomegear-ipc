@@ -37,122 +37,120 @@
 #include <iomanip>
 #include <mutex>
 
-namespace Ipc
-{
+namespace Ipc {
 /**
  * Class to print output of different kinds to the standard and error output.
  * The output is automatically prefixed with the date and filtered according to the current debug level.
  */
-class Output
-{
-public:
-	/**
-	 * The destructor.
-	 * It does nothing.
-	 */
-	virtual ~Output();
+class Output {
+ public:
+  /**
+   * The destructor.
+   * It does nothing.
+   */
+  virtual ~Output();
 
-	static void setLogLevel(int32_t value);
+  static void setLogLevel(int32_t value);
 
-	/**
-	 * Prints an error message with filename, line number and function name.
-	 *
-	 * @param file The name of the file where the error occured.
-	 * @param line The line number where the error occured.
-	 * @param function The function name where the error occured.
-	 * @param what The error message.
-	 */
-	static void printEx(std::string file, uint32_t line, std::string function, std::string what = "");
+  /**
+   * Prints an error message with filename, line number and function name.
+   *
+   * @param file The name of the file where the error occured.
+   * @param line The line number where the error occured.
+   * @param function The function name where the error occured.
+   * @param what The error message.
+   */
+  static void printEx(std::string file, uint32_t line, std::string function, std::string what = "");
 
-	/**
-	 * Prints a critical error message (debug level < 1).
-	 *
-	 * @see printError()
-	 * @see printWarning()
-	 * @see printInfo()
-	 * @see printDebug()
-	 * @see printMessage()
-	 * @param errorString The error message.
-	 * @param errorCallback If set to false, the error will not be send to RPC event servers (default true)
-	 */
-	static void printCritical(std::string errorString, bool errorCallback = true);
+  /**
+   * Prints a critical error message (debug level < 1).
+   *
+   * @see printError()
+   * @see printWarning()
+   * @see printInfo()
+   * @see printDebug()
+   * @see printMessage()
+   * @param errorString The error message.
+   * @param errorCallback If set to false, the error will not be send to RPC event servers (default true)
+   */
+  static void printCritical(std::string errorString, bool errorCallback = true);
 
-	/**
-	 * Prints an error message (debug level < 2).
-	 *
-	 * @see printCritical()
-	 * @see printWarning()
-	 * @see printInfo()
-	 * @see printDebug()
-	 * @see printMessage()
-	 * @param errorString The error message.
-	 */
-	static void printError(std::string errorString);
+  /**
+   * Prints an error message (debug level < 2).
+   *
+   * @see printCritical()
+   * @see printWarning()
+   * @see printInfo()
+   * @see printDebug()
+   * @see printMessage()
+   * @param errorString The error message.
+   */
+  static void printError(std::string errorString);
 
-	/**
-	 * Prints a warning message (debug level < 3).
-	 *
-	 * @see printCritical()
-	 * @see printError()
-	 * @see printInfo()
-	 * @see printDebug()
-	 * @see printMessage()
-	 * @param errorString The warning message.
-	 */
-	static void printWarning(std::string errorString);
+  /**
+   * Prints a warning message (debug level < 3).
+   *
+   * @see printCritical()
+   * @see printError()
+   * @see printInfo()
+   * @see printDebug()
+   * @see printMessage()
+   * @param errorString The warning message.
+   */
+  static void printWarning(std::string errorString);
 
-	/**
-	 * Prints a info message (debug level < 4).
-	 *
-	 * @see printCritical()
-	 * @see printError()
-	 * @see printWarning()
-	 * @see printDebug()
-	 * @see printMessage()
-	 * @param message The message.
-	 */
-	static void printInfo(std::string message);
+  /**
+   * Prints a info message (debug level < 4).
+   *
+   * @see printCritical()
+   * @see printError()
+   * @see printWarning()
+   * @see printDebug()
+   * @see printMessage()
+   * @param message The message.
+   */
+  static void printInfo(std::string message);
 
-	/**
-	 * Prints a debug message (debug level < 5).
-	 *
-	 * @see printCritical()
-	 * @see printError()
-	 * @see printWarning()
-	 * @see printInfo()
-	 * @see printMessage()
-	 * @param message The message.
-	 * @param minDebugLevel The minimal debug level (default 5).
-	 */
-	static void printDebug(std::string message, int32_t minDebugLevel = 5);
+  /**
+   * Prints a debug message (debug level < 5).
+   *
+   * @see printCritical()
+   * @see printError()
+   * @see printWarning()
+   * @see printInfo()
+   * @see printMessage()
+   * @param message The message.
+   * @param minDebugLevel The minimal debug level (default 5).
+   */
+  static void printDebug(std::string message, int32_t minDebugLevel = 5);
 
-	/**
-	 * Prints a message regardless of the current debug level.
-	 *
-	 * @see printCritical()
-	 * @see printError()
-	 * @see printWarning()
-	 * @see printInfo()
-	 * @see printDebug()
-	 * @param message The message.
-	 * @param minDebugLevel The minimal debug level (default 0).
-	 */
-	static void printMessage(std::string message, int32_t minDebugLevel = 0);
+  /**
+   * Prints a message regardless of the current debug level.
+   *
+   * @see printCritical()
+   * @see printError()
+   * @see printWarning()
+   * @see printInfo()
+   * @see printDebug()
+   * @param message The message.
+   * @param minDebugLevel The minimal debug level (default 0).
+   */
+  static void printMessage(std::string message, int32_t minDebugLevel = 0);
 
-	/**
-	 * Calls the error callback function registered with the constructor.
-	 */
-private:
-	static int32_t _logLevel;
-	static std::mutex _outputMutex;
+  /**
+   * Calls the error callback function registered with the constructor.
+   */
+ private:
+  static int32_t _logLevel;
+  static std::mutex _outputMutex;
 
-	static std::string getTimeString();
+  static std::string getTimeString();
 
-	/**
-	 * The main constructor.
-	 * The constructor does nothing.
-	 */
-	Output();
+  /**
+   * The main constructor.
+   * The constructor does nothing.
+   */
+  Output();
 };
 }
 #endif

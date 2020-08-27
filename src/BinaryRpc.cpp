@@ -30,122 +30,103 @@
 
 #include "BinaryRpc.h"
 
-namespace Ipc
-{
+namespace Ipc {
 
-BinaryRpc::BinaryRpc()
-{
-	_data.reserve(1024);
-	checkEndianness();
+BinaryRpc::BinaryRpc() {
+  _data.reserve(1024);
+  checkEndianness();
 }
 
-BinaryRpc::~BinaryRpc()
-{
+BinaryRpc::~BinaryRpc() {
 
 }
 
-void BinaryRpc::checkEndianness()
-{
-	union {
-		uint32_t i;
-		char c[4];
-	} bint = {0x01020304};
+void BinaryRpc::checkEndianness() {
+  union {
+    uint32_t i;
+    char c[4];
+  } bint = {0x01020304};
 
-	_isBigEndian = bint.c[0] == 1;
+  _isBigEndian = bint.c[0] == 1;
 }
 
-void BinaryRpc::memcpyBigEndian(char* to, const char* from, const uint32_t& length)
-{
-	if(_isBigEndian) memcpy(to, from, length);
-	else
-	{
-		uint32_t last = length - 1;
-		for(uint32_t i = 0; i < length; i++)
-		{
-			to[i] = from[last - i];
-		}
-	}
+void BinaryRpc::memcpyBigEndian(char *to, const char *from, const uint32_t &length) {
+  if (_isBigEndian) memcpy(to, from, length);
+  else {
+    uint32_t last = length - 1;
+    for (uint32_t i = 0; i < length; i++) {
+      to[i] = from[last - i];
+    }
+  }
 }
 
-int32_t BinaryRpc::process(char* buffer, int32_t bufferLength)
-{
-	int32_t initialBufferLength = bufferLength;
-	if(bufferLength <= 0 || _finished) return 0;
-	_processingStarted = true;
-	if(_data.size() + bufferLength < 8)
-	{
-		_data.insert(_data.end(), buffer, buffer + bufferLength);
-		return initialBufferLength;
-	}
-	else if(_data.size() < 8)
-	{
-		int32_t sizeToInsert = 8 - _data.size();
-		_data.insert(_data.end(), buffer, buffer + sizeToInsert);
-		buffer += sizeToInsert;
-		bufferLength -= sizeToInsert;
-	}
-	if(strncmp(_data.data(), "Bin", 3) != 0)
-	{
-		_finished = true;
-		throw BinaryRpcException("Packet does not start with \"Bin\".");
-	}
-	_type = (_data[3] & 1) ? Type::response : Type::request;
-	if(_data[3] == 0x40 || _data[3] == 0x41)
-	{
-		_hasHeader = true;
-		memcpyBigEndian((char*)&_headerSize, _data.data() + 4, 4);
-		if(_headerSize > 10485760) throw BinaryRpcException("Header is larger than 10 MiB.");
-	}
-	else
-	{
-		memcpyBigEndian((char*)&_dataSize, _data.data() + 4, 4);
-		if(_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
-	}
-	if(_dataSize == 0 && _headerSize == 0)
-	{
-		_finished = true;
-		throw BinaryRpcException("Invalid packet format.");
-	}
-	if(_dataSize == 0) //Has header
-	{
-		if(_data.size() + bufferLength < 8 + _headerSize + 4)
-		{
-			if(_headerSize + 8 + 100 > _data.capacity()) _data.reserve(_headerSize + 8 + 1024);
-			_data.insert(_data.end(), buffer, buffer + bufferLength);
-			return initialBufferLength;
-		}
-		int32_t sizeToInsert = (8 + _headerSize + 4) - _data.size();
-		_data.insert(_data.end(), buffer, buffer + sizeToInsert);
-		buffer += sizeToInsert;
-		bufferLength -= sizeToInsert;
-		memcpyBigEndian((char*)&_dataSize, _data.data() + 8 + _headerSize, 4);
-		_dataSize += _headerSize + 4;
-		if(_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
-	}
-	_data.reserve(8 + _dataSize);
-	if(_data.size() + bufferLength < _dataSize + 8)
-	{
-		_data.insert(_data.end(), buffer, buffer + bufferLength);
-		return initialBufferLength;
-	}
-	int32_t sizeToInsert = (8 + _dataSize) - _data.size();
-	_data.insert(_data.end(), buffer, buffer + sizeToInsert);
-	buffer += sizeToInsert;
-	bufferLength -= sizeToInsert;
-	_finished = true;
-	return initialBufferLength - bufferLength;
+int32_t BinaryRpc::process(char *buffer, int32_t bufferLength) {
+  int32_t initialBufferLength = bufferLength;
+  if (bufferLength <= 0 || _finished) return 0;
+  _processingStarted = true;
+  if (_data.size() + bufferLength < 8) {
+    _data.insert(_data.end(), buffer, buffer + bufferLength);
+    return initialBufferLength;
+  } else if (_data.size() < 8) {
+    int32_t sizeToInsert = 8 - _data.size();
+    _data.insert(_data.end(), buffer, buffer + sizeToInsert);
+    buffer += sizeToInsert;
+    bufferLength -= sizeToInsert;
+  }
+  if (strncmp(_data.data(), "Bin", 3) != 0) {
+    _finished = true;
+    throw BinaryRpcException("Packet does not start with \"Bin\".");
+  }
+  _type = (_data[3] & 1) ? Type::response : Type::request;
+  if (_data[3] == 0x40 || _data[3] == 0x41) {
+    _hasHeader = true;
+    memcpyBigEndian((char *)&_headerSize, _data.data() + 4, 4);
+    if (_headerSize > 10485760) throw BinaryRpcException("Header is larger than 10 MiB.");
+  } else {
+    memcpyBigEndian((char *)&_dataSize, _data.data() + 4, 4);
+    if (_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
+  }
+  if (_dataSize == 0 && _headerSize == 0) {
+    _finished = true;
+    throw BinaryRpcException("Invalid packet format.");
+  }
+  if (_dataSize == 0) //Has header
+  {
+    if (_data.size() + bufferLength < 8 + _headerSize + 4) {
+      if (_headerSize + 8 + 100 > _data.capacity()) _data.reserve(_headerSize + 8 + 1024);
+      _data.insert(_data.end(), buffer, buffer + bufferLength);
+      return initialBufferLength;
+    }
+    int32_t sizeToInsert = (8 + _headerSize + 4) - _data.size();
+    _data.insert(_data.end(), buffer, buffer + sizeToInsert);
+    buffer += sizeToInsert;
+    bufferLength -= sizeToInsert;
+    memcpyBigEndian((char *)&_dataSize, _data.data() + 8 + _headerSize, 4);
+    _dataSize += _headerSize + 4;
+    if (_dataSize > 104857600) throw BinaryRpcException("Data is data larger than 100 MiB.");
+  }
+  _data.reserve(8 + _dataSize);
+  if (_data.size() + bufferLength < _dataSize + 8) {
+    _data.insert(_data.end(), buffer, buffer + bufferLength);
+    return initialBufferLength;
+  }
+  int32_t sizeToInsert = (8 + _dataSize) - _data.size();
+  _data.insert(_data.end(), buffer, buffer + sizeToInsert);
+  buffer += sizeToInsert;
+  bufferLength -= sizeToInsert;
+  _finished = true;
+  return initialBufferLength - bufferLength;
 }
 
-void BinaryRpc::reset()
-{
-	_data.clear();
-	_data.reserve(1024);
-	_type = Type::unknown;
-	_processingStarted = false;
-	_finished = false;
-	_hasHeader = false;
-	_headerSize = 0;
-	_dataSize = 0;
+void BinaryRpc::reset() {
+  _data.clear();
+  _data.reserve(1024);
+  _type = Type::unknown;
+  _processingStarted = false;
+  _finished = false;
+  _hasHeader = false;
+  _headerSize = 0;
+  _dataSize = 0;
 }
 
 }

@@ -38,187 +38,180 @@
 #include <sstream>
 #include <chrono>
 
-namespace Ipc
-{
+namespace Ipc {
 
 /**
  * This class provides functions to make your life easier.
  */
-class HelperFunctions
-{
-public:
-	/**
-	 * Constructor.
-	 * It does nothing. You need to call init() to initialize the object.
-	 */
-	HelperFunctions();
+class HelperFunctions {
+ public:
+  /**
+   * Constructor.
+   * It does nothing. You need to call init() to initialize the object.
+   */
+  HelperFunctions();
 
-	/**
-	 * Destructor.
-	 * Does nothing.
-	 */
-	virtual ~HelperFunctions();
+  /**
+   * Destructor.
+   * Does nothing.
+   */
+  virtual ~HelperFunctions();
 
-	/**
-	 * Left trims a string.
-	 *
-	 * @see rtrim()
-	 * @see trim()
-	 * @param[in,out] s The string to left trim.
-	 * @return Returns a reference to the left trimmed string.
-	 */
-	static inline std::string &ltrim(std::string &s)
-	{
-			s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-			return s;
-	}
+  /**
+   * Left trims a string.
+   *
+   * @see rtrim()
+   * @see trim()
+   * @param[in,out] s The string to left trim.
+   * @return Returns a reference to the left trimmed string.
+   */
+  static inline std::string &ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return s;
+  }
 
-	/**
-	 * Right trims a string.
-	 *
-	 * @see ltrim()
-	 * @see trim()
-	 * @param[in,out] s The string to right trim.
-	 * @return Returns a reference to the right trimmed string.
-	 */
-	static inline std::string &rtrim(std::string &s)
-	{
-			s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-			return s;
-	}
+  /**
+   * Right trims a string.
+   *
+   * @see ltrim()
+   * @see trim()
+   * @param[in,out] s The string to right trim.
+   * @return Returns a reference to the right trimmed string.
+   */
+  static inline std::string &rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
+  }
 
-	/**
-	 * Trims a string.
-	 *
-	 * @see ltrim()
-	 * @see rtrim()
-	 * @param[in,out] s The string to trim.
-	 * @return Returns a reference to the trimmed string.
-	 */
-	static inline std::string& trim(std::string& s)
-	{
-			return ltrim(rtrim(s));
-	}
+  /**
+   * Trims a string.
+   *
+   * @see ltrim()
+   * @see rtrim()
+   * @param[in,out] s The string to trim.
+   * @return Returns a reference to the trimmed string.
+   */
+  static inline std::string &trim(std::string &s) {
+    return ltrim(rtrim(s));
+  }
 
-	/**
-	 * Converts all characters of a string to lower case.
-	 *
-	 * @see toUpper()
-	 * @param[in,out] s The string to convert all characters to lower case for.
-	 * @return Returns a reference to the lower case string.
-	 */
-	static inline std::string& toLower (std::string& s)
-	{
-		std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-		return s;
-	}
+  /**
+   * Converts all characters of a string to lower case.
+   *
+   * @see toUpper()
+   * @param[in,out] s The string to convert all characters to lower case for.
+   * @return Returns a reference to the lower case string.
+   */
+  static inline std::string &toLower(std::string &s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+  }
 
-	/**
-	 * Converts all characters of a string to upper case.
-	 *
-	 * @see toLower()
-	 * @param[in,out] s The string to convert all characters to upper case for.
-	 * @return Returns a reference to the upper case string.
-	 */
-	static inline std::string& toUpper (std::string& s)
-	{
-		std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-		return s;
-	}
+  /**
+   * Converts all characters of a string to upper case.
+   *
+   * @see toLower()
+   * @param[in,out] s The string to convert all characters to upper case for.
+   * @return Returns a reference to the upper case string.
+   */
+  static inline std::string &toUpper(std::string &s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+    return s;
+  }
 
-	/**
-	 * Converts a byte array to a hex string.
-	 *
-	 * @param buffer The byte array to convert.
-	 * @param size The size of the buffer.
-	 * @return Returns the hex string of the byte array.
-	 */
-	static std::string getHexString(const uint8_t* buffer, uint32_t size);
+  /**
+   * Converts a byte array to a hex string.
+   *
+   * @param buffer The byte array to convert.
+   * @param size The size of the buffer.
+   * @return Returns the hex string of the byte array.
+   */
+  static std::string getHexString(const uint8_t *buffer, uint32_t size);
 
-	/**
-	 * Converts a byte array to a hex string.
-	 *
-	 * @param buffer The byte array to convert.
-	 * @param size The size of the buffer.
-	 * @return Returns the hex string of the byte array.
-	 */
-	static std::string getHexString(const char* buffer, uint32_t size);
+  /**
+   * Converts a byte array to a hex string.
+   *
+   * @param buffer The byte array to convert.
+   * @param size The size of the buffer.
+   * @return Returns the hex string of the byte array.
+   */
+  static std::string getHexString(const char *buffer, uint32_t size);
 
-	/**
-	 * Converts a byte array to a hex string.
-	 *
-	 * @param data The byte array to convert.
-	 * @return Returns the hex string of the byte array.
-	 */
-	static std::string getHexString(const std::vector<char>& data);
+  /**
+   * Converts a byte array to a hex string.
+   *
+   * @param data The byte array to convert.
+   * @return Returns the hex string of the byte array.
+   */
+  static std::string getHexString(const std::vector<char> &data);
 
-	/**
-	 * Converts a byte array to a hex string.
-	 *
-	 * @param data The byte array to convert.
-	 * @return Returns the hex string of the byte array.
-	 */
-	static std::string getHexString(const std::string& data);
+  /**
+   * Converts a byte array to a hex string.
+   *
+   * @param data The byte array to convert.
+   * @return Returns the hex string of the byte array.
+   */
+  static std::string getHexString(const std::string &data);
 
-	/**
-	 * Converts a byte array to a hex string.
-	 *
-	 * @param data The byte array to convert.
-	 * @return Returns the hex string of the byte array.
-	 */
-	static std::string getHexString(const std::vector<uint8_t>& data);
+  /**
+   * Converts a byte array to a hex string.
+   *
+   * @param data The byte array to convert.
+   * @return Returns the hex string of the byte array.
+   */
+  static std::string getHexString(const std::vector<uint8_t> &data);
 
-	/**
-	 * Converts an int16 array to a hex string.
-	 *
-	 * @param data The array to convert.
-	 * @return Returns the hex string of the array.
-	 */
-	static std::string getHexString(const std::vector<uint16_t>& data);
+  /**
+   * Converts an int16 array to a hex string.
+   *
+   * @param data The array to convert.
+   * @return Returns the hex string of the array.
+   */
+  static std::string getHexString(const std::vector<uint16_t> &data);
 
-	/**
-	 * Converts an integer to a hex string.
-	 *
-	 * @param number The integer to convert.
-	 * @param width The minimal width of the hex string (default -1). If the hex string is smaller, it is prefixed with zeros.
-	 * @return Returns the hex string of the integer.
-	 */
-	static std::string getHexString(int32_t number, int32_t width = -1);
+  /**
+   * Converts an integer to a hex string.
+   *
+   * @param number The integer to convert.
+   * @param width The minimal width of the hex string (default -1). If the hex string is smaller, it is prefixed with zeros.
+   * @return Returns the hex string of the integer.
+   */
+  static std::string getHexString(int32_t number, int32_t width = -1);
 
-	/**
-	 * Gets the current unix time stamp in milliseconds.
-	 *
-	 * @see getTimeSeconds()
-	 * @see getTimeMicroseconds()
-	 * @return The current unix time stamp in milliseconds.
-	 */
-	static int64_t getTime();
+  /**
+   * Gets the current unix time stamp in milliseconds.
+   *
+   * @see getTimeSeconds()
+   * @see getTimeMicroseconds()
+   * @return The current unix time stamp in milliseconds.
+   */
+  static int64_t getTime();
 
-	/**
-	 * Gets the current unix time stamp in microseconds.
-	 *
-	 * @see getTimeSeconds()
-	 * @see getTime()
-	 * @return The current unix time stamp in microseconds.
-	 */
-	static int64_t getTimeMicroseconds();
+  /**
+   * Gets the current unix time stamp in microseconds.
+   *
+   * @see getTimeSeconds()
+   * @see getTime()
+   * @return The current unix time stamp in microseconds.
+   */
+  static int64_t getTimeMicroseconds();
 
-	/**
-	 * Gets the current unix time stamp in seconds.
-	 *
-	 * @see getTime()
-	 * @see getTimeMicroseconds()
-	 * @return The current unix time stamp in seconds.
-	 */
-	static int32_t getTimeSeconds();
+  /**
+   * Gets the current unix time stamp in seconds.
+   *
+   * @see getTime()
+   * @see getTimeMicroseconds()
+   * @return The current unix time stamp in seconds.
+   */
+  static int32_t getTimeSeconds();
 
-	/**
-	 * Gets the current time as a string like "08/27/14 14:13:53.471".
-	 *
-	 * @param time The unix time stamp in milliseconds to get the time string for. If "0" the current time is returned.
-	 * @return Returns a time string like "08/27/14 14:13:53.471".
-	 */
-	static std::string getTimeString(int64_t time = 0);
+  /**
+   * Gets the current time as a string like "08/27/14 14:13:53.471".
+   *
+   * @param time The unix time stamp in milliseconds to get the time string for. If "0" the current time is returned.
+   * @return Returns a time string like "08/27/14 14:13:53.471".
+   */
+  static std::string getTimeString(int64_t time = 0);
 };
 
 }

@@ -36,24 +36,22 @@
 #include <map>
 #include <vector>
 
-namespace Ipc
-{
-class Ansi
-{
-public:
-	Ansi(bool ansiToUtf8, bool utf8ToAnsi);
-	virtual ~Ansi() {}
+namespace Ipc {
+class Ansi {
+ public:
+  Ansi(bool ansiToUtf8, bool utf8ToAnsi);
+  virtual ~Ansi() {}
 
-	std::string toUtf8(const std::string& ansiString);
-	std::string toUtf8(const char* ansiString, uint32_t length);
-	std::string toAnsi(const std::string& utf8String);
-	std::string toAnsi(const char* utf8String, uint32_t length);
-protected:
-	bool _ansiToUtf8 = false;
-	bool _utf8ToAnsi = false;
+  std::string toUtf8(const std::string &ansiString);
+  std::string toUtf8(const char *ansiString, uint32_t length);
+  std::string toAnsi(const std::string &utf8String);
+  std::string toAnsi(const char *utf8String, uint32_t length);
+ protected:
+  bool _ansiToUtf8 = false;
+  bool _utf8ToAnsi = false;
 
-	std::vector<std::vector<uint8_t>> _utf8Lookup;
-	std::map<uint32_t, uint8_t> _ansiLookup;
+  std::vector<std::vector<uint8_t>> _utf8Lookup;
+  std::map<uint32_t, uint8_t> _ansiLookup;
 };
 }
 #endif
