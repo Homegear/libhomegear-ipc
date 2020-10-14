@@ -143,7 +143,7 @@ void IIpcClient::connect() {
           std::this_thread::sleep_for(std::chrono::milliseconds(2000));
           continue;
         } else {
-          Ipc::Output::printError("Could not connect to socket. Error: " + std::string(strerror(errno)));
+          Ipc::Output::printDebug("Debug: Could not connect to socket. Error: " + std::string(strerror(errno)));
           if (_maintenanceThread.joinable()) _maintenanceThread.join();
           _maintenanceThread = std::thread(&IIpcClient::onConnectError, this);
           return;
