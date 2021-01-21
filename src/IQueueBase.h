@@ -43,7 +43,7 @@ class IQueueBase {
   IQueueBase(uint32_t queueCount);
   virtual ~IQueueBase() {}
 
-  void printQueueFullError(std::string message);
+  void printQueueFullError(const std::string& message);
  protected:
   int32_t _queueCount = 2;
   std::unique_ptr<std::atomic_bool[]> _stopProcessingThread;

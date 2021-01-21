@@ -281,7 +281,7 @@ void IIpcClient::processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry> &
         Ipc::Output::printError("Error: Wrong parameter count while calling method " + methodName);
         return;
       }
-      std::map<std::string, std::function<PVariable(PArray &parameters)>>::iterator localMethodIterator = _localRpcMethods.find(methodName);
+      auto localMethodIterator = _localRpcMethods.find(methodName);
       if (localMethodIterator == _localRpcMethods.end()) {
         Ipc::Output::printError("Warning: RPC method not found: " + methodName);
         PVariable error = Variable::createError(-32601, ": Requested method not found.");

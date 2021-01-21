@@ -71,6 +71,7 @@ void IQueue::startQueue(int32_t index, bool waitWhenFull, uint32_t processingThr
   _bufferTail[index] = 0;
   _bufferCount[index] = 0;
   _waitWhenFull[index] = waitWhenFull;
+  _processingThread[index].reserve(processingThreadCount);
   for (uint32_t i = 0; i < processingThreadCount; i++) {
     std::shared_ptr<std::thread> thread = std::make_shared<std::thread>(&IQueue::process, this, index);
     _processingThread[index].push_back(thread);
@@ -87,11 +88,10 @@ void IQueue::stopQueue(int32_t index) {
   _processingConditionVariable[index].notify_all();
   _produceConditionVariable[index].notify_all();
   for (uint32_t i = 0; i < _processingThread[index].size(); i++) {
-    if (_processingThread[index][i]->joinable()) _processingThread[index][i]->join();
+    if (_processingThread[index][i] && _processingThread[index].at(i)->joinable()) _processingThread[index].at(i)->join();
   }
   _processingThread[index].clear();
   _buffer[index].clear();
-
 }
 
 bool IQueue::enqueue(int32_t index, std::shared_ptr<IQueueEntry> &entry, bool waitWhenFull) {

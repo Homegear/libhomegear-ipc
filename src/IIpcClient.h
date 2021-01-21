@@ -55,7 +55,7 @@ namespace Ipc {
 class IIpcClient : public IQueue {
  public:
   explicit IIpcClient(std::string socketPath);
-  virtual ~IIpcClient();
+  ~IIpcClient() override;
   virtual void dispose();
 
   static std::string version();
@@ -75,7 +75,7 @@ class IIpcClient : public IQueue {
    public:
     QueueEntry() = default;
     explicit QueueEntry(std::vector<char> &packet) { this->packet = packet; }
-    virtual ~QueueEntry() = default;
+    ~QueueEntry() override = default;
 
     std::vector<char> packet;
   };
