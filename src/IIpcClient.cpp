@@ -365,8 +365,14 @@ PVariable IIpcClient::invoke(const std::string &methodName, const PArray &parame
     }
 
     auto threadId = pthread_self();
+    PRequestInfo requestInfo;
     std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
-    PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
+    auto requestInfoIterator = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>()));
+    if (requestInfoIterator.second) requestInfo = requestInfoIterator.first->second;
+    if (!requestInfo) {
+      Ipc::Output::printError("Critical: Could not insert request struct into map.");
+      return Ipc::Variable::createError(-32500, "Unknown application error.");
+    }
     requestInfoGuard.unlock();
 
     int32_t packetId;
