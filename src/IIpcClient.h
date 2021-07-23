@@ -117,6 +117,7 @@ class IIpcClient : public IQueue {
   // {{{ RPC methods
   virtual Ipc::PVariable ping(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastEvent(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
+  virtual Ipc::PVariable broadcastServiceMessage(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
