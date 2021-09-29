@@ -71,9 +71,9 @@ void IQueue::startQueue(int32_t index, bool waitWhenFull, uint32_t processingThr
   _bufferTail[index] = 0;
   _bufferCount[index] = 0;
   _waitWhenFull[index] = waitWhenFull;
+  _processingThread[index].reserve(processingThreadCount);
   for (uint32_t i = 0; i < processingThreadCount; i++) {
-    std::shared_ptr<std::thread> thread = std::make_shared<std::thread>();
-    *thread = std::thread(&IQueue::process, this, index);
+    std::shared_ptr<std::thread> thread = std::make_shared<std::thread>(&IQueue::process, this, index);
     _processingThread[index].push_back(thread);
   }
   _buffer.at(index).resize(_bufferSize);
@@ -88,18 +88,19 @@ void IQueue::stopQueue(int32_t index) {
   _processingConditionVariable[index].notify_all();
   _produceConditionVariable[index].notify_all();
   for (uint32_t i = 0; i < _processingThread[index].size(); i++) {
-    if (_processingThread[index][i]->joinable()) _processingThread[index][i]->join();
+    if (_processingThread[index][i] && _processingThread[index].at(i)->joinable()) _processingThread[index].at(i)->join();
   }
   _processingThread[index].clear();
   _buffer[index].clear();
-
 }
 
 bool IQueue::enqueue(int32_t index, std::shared_ptr<IQueueEntry> &entry, bool waitWhenFull) {
   if (index < 0 || index >= _queueCount || !entry || _stopProcessingThread[index]) return true;
   std::unique_lock<std::mutex> lock(_queueMutex[index]);
   if (_waitWhenFull[index] || waitWhenFull) {
-    _produceConditionVariable[index].wait(lock, [&] { return _bufferCount[index] < _bufferSize || _stopProcessingThread[index]; });
+    while (!_produceConditionVariable[index].wait_for(lock, std::chrono::milliseconds(1000), [&] {
+      return _bufferCount[index] < _bufferSize || _stopProcessingThread[index];
+    }));
     if (_stopProcessingThread[index]) return true;
   } else if (_bufferCount[index] >= _bufferSize) return false;
 
@@ -118,7 +119,9 @@ void IQueue::process(int32_t index) {
     try {
       std::unique_lock<std::mutex> lock(_queueMutex[index]);
 
-      _processingConditionVariable[index].wait(lock, [&] { return _bufferCount[index] > 0 || _stopProcessingThread[index]; });
+      while (!_processingConditionVariable[index].wait_for(lock, std::chrono::milliseconds(1000), [&] {
+        return _bufferCount[index] > 0 || _stopProcessingThread[index];
+      }));
       if (_stopProcessingThread[index]) return;
 
       do {

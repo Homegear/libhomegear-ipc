@@ -46,6 +46,7 @@ IIpcClient::IIpcClient(std::string socketPath) : IQueue(2, 100000) {
 
   _localRpcMethods.emplace("ping", std::bind(&IIpcClient::ping, this, std::placeholders::_1));
   _localRpcMethods.emplace("broadcastEvent", std::bind(&IIpcClient::broadcastEvent, this, std::placeholders::_1));
+  _localRpcMethods.emplace("broadcastServiceMessage", std::bind(&IIpcClient::broadcastServiceMessage, this, std::placeholders::_1));
   _localRpcMethods.emplace("broadcastNewDevices", std::bind(&IIpcClient::broadcastNewDevices, this, std::placeholders::_1));
   _localRpcMethods.emplace("broadcastDeleteDevices", std::bind(&IIpcClient::broadcastDeleteDevices, this, std::placeholders::_1));
   _localRpcMethods.emplace("broadcastUpdateDevice", std::bind(&IIpcClient::broadcastUpdateDevice, this, std::placeholders::_1));
@@ -281,7 +282,7 @@ void IIpcClient::processQueueEntry(int32_t index, std::shared_ptr<IQueueEntry> &
         Ipc::Output::printError("Error: Wrong parameter count while calling method " + methodName);
         return;
       }
-      std::map<std::string, std::function<PVariable(PArray &parameters)>>::iterator localMethodIterator = _localRpcMethods.find(methodName);
+      auto localMethodIterator = _localRpcMethods.find(methodName);
       if (localMethodIterator == _localRpcMethods.end()) {
         Ipc::Output::printError("Warning: RPC method not found: " + methodName);
         PVariable error = Variable::createError(-32601, ": Requested method not found.");
@@ -365,8 +366,14 @@ PVariable IIpcClient::invoke(const std::string &methodName, const PArray &parame
     }
 
     auto threadId = pthread_self();
+    PRequestInfo requestInfo;
     std::unique_lock<std::mutex> requestInfoGuard(_requestInfoMutex);
-    PRequestInfo requestInfo = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>())).first->second;
+    auto requestInfoIterator = _requestInfo.emplace(std::piecewise_construct, std::make_tuple(threadId), std::make_tuple(std::make_shared<RequestInfo>()));
+    if (requestInfoIterator.second) requestInfo = requestInfoIterator.first->second;
+    if (!requestInfo) {
+      Ipc::Output::printError("Critical: Could not insert request struct into map.");
+      return Ipc::Variable::createError(-32500, "Unknown application error.");
+    }
     requestInfoGuard.unlock();
 
     int32_t packetId;

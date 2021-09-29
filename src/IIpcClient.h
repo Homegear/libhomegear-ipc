@@ -55,7 +55,7 @@ namespace Ipc {
 class IIpcClient : public IQueue {
  public:
   explicit IIpcClient(std::string socketPath);
-  virtual ~IIpcClient();
+  ~IIpcClient() override;
   virtual void dispose();
 
   static std::string version();
@@ -75,7 +75,7 @@ class IIpcClient : public IQueue {
    public:
     QueueEntry() = default;
     explicit QueueEntry(std::vector<char> &packet) { this->packet = packet; }
-    virtual ~QueueEntry() = default;
+    ~QueueEntry() override = default;
 
     std::vector<char> packet;
   };
@@ -117,6 +117,7 @@ class IIpcClient : public IQueue {
   // {{{ RPC methods
   virtual Ipc::PVariable ping(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastEvent(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
+  virtual Ipc::PVariable broadcastServiceMessage(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastNewDevices(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastDeleteDevices(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
   virtual Ipc::PVariable broadcastUpdateDevice(Ipc::PArray &parameters) { return std::make_shared<Ipc::Variable>(); }
