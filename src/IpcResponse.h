@@ -39,13 +39,9 @@ namespace Ipc {
 
 class IpcResponse {
  public:
-  std::atomic_bool finished;
+  std::atomic_bool finished{false};
   int32_t packetId = 0;
   PVariable response;
-
-  IpcResponse() {
-    finished = false;
-  }
 };
 
 typedef std::shared_ptr<IpcResponse> PIpcResponse;
