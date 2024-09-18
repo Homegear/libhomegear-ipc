@@ -37,6 +37,7 @@
 #include <cmath>
 #include <bitset>
 #include <sstream>
+#include <cstdint>
 
 namespace Ipc {
 
