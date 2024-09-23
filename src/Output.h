@@ -36,6 +36,7 @@
 #include <sstream>
 #include <iomanip>
 #include <mutex>
+#include <cstdint>
 
 namespace Ipc {
 /**
