@@ -122,18 +122,22 @@ void BinaryEncoder::encodeBoolean(std::vector<uint8_t> &encodedData, bool boolea
 void BinaryEncoder::encodeFloat(std::vector<char> &encodedData, double floatValue) {
   double temp = std::abs(floatValue);
   int32_t exponent = 0;
-  if (temp != 0 && temp < 0.5) {
-    while (temp < 0.5) {
-      temp *= 2;
-      exponent--;
+  int32_t mantissa = 0;
+  if (std::isnormal(temp)) {
+    if (temp != 0 && temp < 0.5) {
+      while (temp < 0.5) {
+        temp *= 2;
+        exponent--;
+      }
+    } else {
+      while (temp >= 1) {
+        temp /= 2;
+        exponent++;
+      }
     }
-  } else
-    while (temp >= 1) {
-      temp /= 2;
-      exponent++;
-    }
-  if (floatValue < 0) temp *= -1;
-  int32_t mantissa = std::lround(temp * 0x40000000);
+    if (floatValue < 0) { temp *= -1; }
+    mantissa = std::lround(temp * 0x40000000);
+  }
   char data[8];
   memcpyBigEndian(data, (char *)&mantissa, 4);
   memcpyBigEndian(data + 4, (char *)&exponent, 4);
@@ -143,18 +147,22 @@ void BinaryEncoder::encodeFloat(std::vector<char> &encodedData, double floatValu
 void BinaryEncoder::encodeFloat(std::vector<uint8_t> &encodedData, double floatValue) {
   double temp = std::abs(floatValue);
   int32_t exponent = 0;
-  if (temp != 0 && temp < 0.5) {
-    while (temp < 0.5) {
-      temp *= 2;
-      exponent--;
+  int32_t mantissa = 0;
+  if (std::isnormal(temp)) {
+    if (temp != 0 && temp < 0.5) {
+      while (temp < 0.5) {
+        temp *= 2;
+        exponent--;
+      }
+    } else {
+      while (temp >= 1) {
+        temp /= 2;
+        exponent++;
+      }
     }
-  } else
-    while (temp >= 1) {
-      temp /= 2;
-      exponent++;
-    }
-  if (floatValue < 0) temp *= -1;
-  int32_t mantissa = std::lround(temp * 0x40000000);
+    if (floatValue < 0) { temp *= -1; }
+    mantissa = std::lround(temp * 0x40000000);
+  }
   char data[8];
   memcpyBigEndian(data, (char *)&mantissa, 4);
   memcpyBigEndian(data + 4, (char *)&exponent, 4);
