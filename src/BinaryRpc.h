@@ -31,6 +31,8 @@
 #ifndef IPCBINARYRPC_H_
 #define IPCBINARYRPC_H_
 
+#include <cstdint>
+
 #include "Variable.h"
 #include <cstring>
 #include "IpcException.h"

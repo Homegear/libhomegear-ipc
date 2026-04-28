@@ -31,6 +31,8 @@
 #ifndef IPCHELPERFUNCTIONS_H_
 #define IPCHELPERFUNCTIONS_H_
 
+#include <cstdint>
+
 #include <vector>
 #include <string>
 #include <iomanip>
