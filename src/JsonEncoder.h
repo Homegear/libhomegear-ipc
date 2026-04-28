@@ -31,6 +31,8 @@
 #ifndef IPCJSONENCODER_H_
 #define IPCJSONENCODER_H_
 
+#include <cstdint>
+
 #include "Variable.h"
 #include <cmath>
 #include <sstream>

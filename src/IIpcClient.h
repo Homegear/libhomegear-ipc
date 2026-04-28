@@ -33,6 +33,8 @@
 #ifndef IIPCCLIENT_H_
 #define IIPCCLIENT_H_
 
+#include <cstdint>
+
 #include "IpcResponse.h"
 #include "IQueue.h"
 #include "Output.h"

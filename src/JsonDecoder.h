@@ -31,6 +31,8 @@
 #ifndef IPCJSONDECODER_H_
 #define IPCJSONDECODER_H_
 
+#include <cstdint>
+
 #include "Variable.h"
 #include "Math.h"
 #include "IpcException.h"

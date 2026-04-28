@@ -31,6 +31,8 @@
 #ifndef IPCBINARYDECODER_H_
 #define IPCBINARYDECODER_H_
 
+#include <cstdint>
+
 #include <iostream>
 #include <memory>
 #include <cstring>
