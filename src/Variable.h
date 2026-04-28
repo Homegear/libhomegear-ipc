@@ -31,6 +31,8 @@
 #ifndef IPCVARIABLE_H_
 #define IPCVARIABLE_H_
 
+#include <cstdint>
+
 #include <vector>
 #include <string>
 #include <memory>

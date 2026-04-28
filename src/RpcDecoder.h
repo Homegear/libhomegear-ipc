@@ -31,6 +31,8 @@
 #ifndef IPCRPCDECODER_H_
 #define IPCRPCDECODER_H_
 
+#include <cstdint>
+
 #include "Variable.h"
 #include "BinaryDecoder.h"
 #include "RpcHeader.h"

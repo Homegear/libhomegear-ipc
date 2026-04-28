@@ -31,6 +31,8 @@
 #ifndef IIPCRESPONSE_H_
 #define IIPCRESPONSE_H_
 
+#include <cstdint>
+
 #include "Variable.h"
 
 #include <atomic>
